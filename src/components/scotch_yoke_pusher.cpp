@@ -26,7 +26,7 @@ void Rune::PusherScotchYoke::triggerRisingEdge() {
 }
 
 void Rune::PusherScotchYoke::triggerFallingEdge() {
-  add_repeating_timer_ms(-200, pusherSafetyCallback, NULL, &pusherSafetyCallbackTimer);
+  //add_repeating_timer_ms(-200, pusherSafetyCallback, NULL, &pusherSafetyCallbackTimer);
   psTimeout = WAITING;
 }
 
