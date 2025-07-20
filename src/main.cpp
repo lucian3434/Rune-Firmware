@@ -9,6 +9,7 @@
 #include "states.h"
 
 #include "components/scotch_yoke_pusher.h"
+#include "components/solenoid_pusher.h"
 
 
 
@@ -27,6 +28,10 @@ absolute_time_t lastWheelStateUpdate;
 #ifdef PUSHER_SCOTCH_YOKE
 Rune::PusherScotchYoke pusher = Rune::PusherScotchYoke(&updateWheelState, &firemode_curr, &drv, &cycle);
 #endif
+
+#ifdef PUSHER_BASIC_SOLENOID
+Rune::SolenoidPusher pusher = Rune::SolenoidPusher(&updateWheelState, &firemode_curr, &drv);
+#endif 
 
 // helper variables for PID control
 // these pid values work for the most part. not the greatest, but better than nothing lol
@@ -254,7 +259,7 @@ void updateWheelState(wheelState_t newState) {
   }
   else if (newState == STEADY) {
     uprintf("INFO: trigger delay: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(lastWheelStateUpdate));
-    pusher.updatePusherState(Rune::PusherScotchYoke::pusherState_t::RUNNING); // start the pusher once we are at steady state
+    pusher.updatePusherState(Rune::PusherGeneric::pusherState_t::RUNNING); // start the pusher once we are at steady state
   }
   else if (newState == SLOWING) {
     // save the last throttle values so we know where to slow down from

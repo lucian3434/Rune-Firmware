@@ -54,7 +54,7 @@ void Rune::PusherScotchYoke::pusherTick() {
   }
 }
 
-void Rune::PusherScotchYoke::updatePusherState(Rune::PusherScotchYoke::pusherState_t newState) {
+void Rune::PusherScotchYoke::updatePusherState(Rune::PusherGeneric::pusherState_t newState) {
   pusherState = newState;
   if (newState == RUNNING) {
     shotsFired = 0;

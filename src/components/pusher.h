@@ -17,11 +17,6 @@ void pusherTriggerFallingEdgeHook(wheelUpdateCallback_t updateWheelState);
 // called every tick of the system control loop
 void pusherTick(wheelUpdateCallback_t updateWheelState);
 
-#ifdef PUSHER_SCOTCH_YOKE
-// check to make sure the pusher isnt stuck on for too long after the trigger is released (dead switch/cannot travel/etc)
-bool pusherSafetyCallback(repeating_timer_t *rt);
-#endif
-
 namespace Rune {
     // Prototype class for a pusher module. Not for direct use.
     class PusherGeneric {
@@ -30,6 +25,10 @@ namespace Rune {
             firemode_t **firemode;
             uint16_t shotsFired;
         public:
+            enum pusherState_t {
+                RUNNING,
+                STOPPED
+            };
             PusherGeneric();
             PusherGeneric(wheelUpdateCallback_t callback, firemode_t **firemode_curr);
             bool init();

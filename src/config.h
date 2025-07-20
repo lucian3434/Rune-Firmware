@@ -16,8 +16,11 @@
 //#define USE_RPM_LOGGING
 
 // choose one of these to define which pusher type you are using
-#define PUSHER_SCOTCH_YOKE
-//#define PUSHER_BASIC_SOLENOID
+//#define PUSHER_SCOTCH_YOKE
+#define PUSHER_BASIC_SOLENOID 
+#define EXTEND_TIME_MS 25 // time in ms to extend the pusher
+#define RETRACT_TIME_MS 100 // time in ms to retract the pusher 
+
 
 // choose one of these to select which communication protocol to use with the ESCs
 // note that for now this also requires the motors array to be updated to match in peripherals.cpp

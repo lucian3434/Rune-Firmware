@@ -8,11 +8,6 @@
 
 namespace Rune {
     class PusherScotchYoke : public PusherGeneric {
-        public: // this looks stupid here and theres probably a better way to do it
-            enum pusherState_t {
-                RUNNING,
-                STOPPED
-            };
         protected:
             // state of the scotch yoke pusher safety timeout
             enum pusherSafetyTimeout_t {
@@ -21,7 +16,7 @@ namespace Rune {
             };
             DRV::DRV824xS *driver;
             Debounce::Button *cycle;
-            Rune::PusherScotchYoke::pusherState_t pusherState;
+            Rune::PusherGeneric::pusherState_t pusherState;
             Rune::PusherScotchYoke::pusherSafetyTimeout_t psTimeout;
             repeating_timer_t pusherSafetyCallbackTimer;
 
@@ -31,7 +26,7 @@ namespace Rune {
             void triggerRisingEdge();
             void triggerFallingEdge();
             void pusherTick();
-            void updatePusherState(Rune::PusherScotchYoke::pusherState_t newState);
+            void updatePusherState(Rune::PusherGeneric::pusherState_t newState);
             bool pusherSafetyCallback(repeating_timer_t *rt);
     };
 }
