@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include "pico/stdlib.h"
 
 enum wheelState_t {
     IDLE,
@@ -7,13 +7,15 @@ enum wheelState_t {
     STEADY,
     SLOWING
 };
-
+/*
 enum pusherState_t {
     RUNNING,
     STOPPED
 };
 
+// state of the scotch yoke pusher safety timeout
 enum pusherSafetyTimeout_t {
     WAITING,
     NONE
 };
+*/
