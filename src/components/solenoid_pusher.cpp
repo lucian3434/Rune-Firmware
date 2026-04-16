@@ -46,13 +46,13 @@ void Rune::SolenoidPusher::pusherTick() {
         solenoidNextStateChange = delayed_by_ms(solenoidLastStateChange, retractTimeMs); 
       } else if (solenoidState == RETRACTING) {
        
-        if ((shotsFired >= (*firemode)->numShots) || ((!trig.isPressed()) && (firemode_curr->burstMode == 0))){
+        if ((shotsFired >= (*firemode)->numShots) || ((!trig.isPressed()) && ((*firemode)->burstMode == 0))){
           // stop the pusher if we've finished the burst or let go of the trigger
           updatePusherState(STOPPED);
           updateWheelState(SLOWING); // and tell the wheels to slow down too
         } else {
           // still more shots to fire
-          driver->coast();
+          driver->drive();
           solenoidState = EXTENDING; // set the state to extending
           solenoidLastStateChange = get_absolute_time(); 
           solenoidNextStateChange = delayed_by_ms(solenoidLastStateChange, retractTimeMs); 

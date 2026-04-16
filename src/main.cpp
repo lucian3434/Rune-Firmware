@@ -44,6 +44,7 @@ float steadyThrottle[NUM_MOTORS]; // last known good throttle, used for ramp dow
 uint32_t rampDownTime = 500 * 1000; // motor ramp down time in us
 int32_t pidFrequency = 4000; // update frequency in hz
 int32_t loopTimeus = 1e6 / pidFrequency; // motor control loop time in us
+uint32_t rpmLast[NUM_MOTORS] = {0};
 
 // loop variables for main logic loop
 int32_t mainLoopFrequency = 1000; // main logic loop update frequency in hz
@@ -188,6 +189,11 @@ bool motorControlLoop(repeating_timer_t *rt) {
   for (uint8_t i = 0; i < NUM_MOTORS; i++) {
     // get rpm from motor
     uint32_t rpm = motors[i].readTelemetry();
+    if (((rpm & 0xff000000) == 0xff000000) && (wheelState != IDLE)) {
+      uprintf("M%u: Error 0x%x\r\n", i + 1, rpm);
+      rpm = rpmLast[i]; // for now, feed in old data
+    }
+    rpmLast[i] = rpm;
 
     if (wheelState == SLOWING) {
       // keep updating pid in case we need to start accelerating again
@@ -239,7 +245,10 @@ bool motorControlLoop(repeating_timer_t *rt) {
     // note that overshoot isn't checked; tune your PID properly!
     if (atTarget == ((1 << NUM_MOTORS) - 1)) updateWheelState(STEADY);
     // or, if its been more than 200ms, assume something is wrong and switch state anyway
-    else if (absolute_time_diff_us(lastWheelStateUpdate, get_absolute_time()) > 200000) updateWheelState(STEADY);
+    else if (absolute_time_diff_us(lastWheelStateUpdate, get_absolute_time()) > 200000) {
+      uprintf("WARN: Spinup took >200ms\r\n");
+      updateWheelState(STEADY);
+    }
   }
   else if (wheelState == SLOWING) {
     // switch state to idle if we have been slowing down for longer than rampDownTime; throttle should be 0 by now
