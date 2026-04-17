@@ -2,6 +2,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "components/blaster.h"
+#include "components/board_def.h"
+
+#include "led/ws2812.h"
+
+/*
 #include "config.h"
 #include "util.h"
 
@@ -10,7 +16,7 @@
 
 #include "components/scotch_yoke_pusher.h"
 #include "components/solenoid_pusher.h"
-
+*/
 
 
 void init();
@@ -18,6 +24,7 @@ bool systemControlLoop(repeating_timer_t *rt);
 bool motorControlLoop(repeating_timer_t *rt);
 void updateWheelState(wheelState_t newState);
 
+/*
 uint8_t shotsFired = 0; // helper variable so we know how far into a burst we are
 
 // blaster state variables
@@ -62,11 +69,35 @@ uint16_t cacheIndex = rpmLogLength + 1;
 struct firemode_t firemode_one;
 struct firemode_t firemode_two;
 struct firemode_t firemode_three;
+*/
+
+Rune::Config config = Rune::Config();
+Rune::Blaster blaster = Rune::Blaster(&config);
+HW::Board* board;
+
+LED::WS2812 led;
 
 void init() {
   // initialize generic io and usb
   stdio_init_all();
 
+  config.load();
+
+  board = HW::boards[config.board_name];
+
+    if (board->ws2812_data != HW::NO_ASSIGNMENT) {
+    // initialize status LED
+    led = LED::WS2812(board->ws2812_data, pio1);
+    led.init();
+    led.setColor(0x0000FF); // blue to signal that we're booting
+    led.update();
+  }
+
+  blaster.init(board);
+
+  
+  
+  /*
   // initialize buttons
   trig.init();
   cycle.init();
@@ -119,7 +150,7 @@ void init() {
   firemode_two = { {setRPM, setRPM}, burstSize[1], burstMode[1] };
   firemode_three = { {setRPM, setRPM}, burstSize[2], burstMode[2] };
 
-
+  */
 }
 
 int main() {

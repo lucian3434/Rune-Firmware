@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./../debounce/button.h"
+#include "debounce/button.h"
 #include <vector>
 
 namespace Rune {

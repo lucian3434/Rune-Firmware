@@ -3,8 +3,7 @@
 #include "pusher.h"
 #include "drv/drv824xs.h"
 #include "pico/stdlib.h"
-#include "./../config.h"
-#include "./../util.h"
+#include "./../../util.h"
 
 namespace Rune {
     class PusherScotchYoke : public PusherGeneric {
@@ -23,10 +22,6 @@ namespace Rune {
         public:
             PusherScotchYoke(wheelUpdateCallback_t callback, firemode_t **firemode_curr, DRV::DRV824xS *drv, Debounce::Button *cycleSwitch);
             bool init();
-            void triggerRisingEdge();
-            void triggerFallingEdge();
             void pusherTick();
-            void updatePusherState(Rune::PusherGeneric::pusherState_t newState);
-            bool pusherSafetyCallback(repeating_timer_t *rt);
     };
 }

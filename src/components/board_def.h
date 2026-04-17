@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vector>
-
+#include <stdint.h>
 
 namespace HW {
+    const uint8_t NO_ASSIGNMENT = 0xff;
+
     enum adcFunction_t {
         NC,
         IO1,
@@ -12,8 +14,12 @@ namespace HW {
         ESC_CURR_SENSE
     };
 
-    class Board {
-        public:
+    enum boardVersion_t {
+        RUNE_V0_2 = 0,
+        RUNE_V0_3 = 1
+    };
+
+    struct Board {
         std::vector<uint8_t> escs;
         uint8_t esc_enable;
         uint8_t esc_telem;
@@ -35,11 +41,16 @@ namespace HW {
         uint8_t ws2812_data;
         
         adcFunction_t adc[4];
-
-        uint8_t getADCInput(adcFunction_t func);
-        Board();
     };
+
+    Board rune_v0_2;
+    Board rune_v0_3;
+
+    Board* boards[] {
+        &rune_v0_2,
+        &rune_v0_3
+    };
+
+    uint8_t getADCSlice(HW::Board* board, adcFunction_t func);
 }
 
-extern HW::Board rune_v0_2;
-extern HW::Board rune_v0_3;

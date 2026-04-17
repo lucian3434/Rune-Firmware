@@ -48,9 +48,9 @@ add_executable(${PROJECT_NAME}
         src/config.cpp
         src/util.cpp
         src/peripherals.cpp
-        src/components/pusher.cpp
-        src/components/scotch_yoke_pusher.cpp
-        src/components/solenoid_pusher.cpp)
+        src/components/blaster.cpp
+        src/components/board_def.cpp
+        src/components/states.cpp)
 
 pico_set_program_name(${PROJECT_NAME} "rune_firmware")
 pico_set_program_version(${PROJECT_NAME} "0.2")

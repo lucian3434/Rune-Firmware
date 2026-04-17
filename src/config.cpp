@@ -1,8 +1,27 @@
 #include "config.h"
 
-struct firemode_t* firemode_curr = nullptr; // pointer to current fire mode
+Rune::Config::Config() {
+  io_switches = {};
+}
 
-// stuctured as boot/firing mode 1, 2, 3
-uint32_t variableFPS[3] = {19500, 24000, 37000}; // target rpm by position of selector switch at boot
-uint8_t burstSize[3] = {1, 3, 100}; //maximum number of darts fired per trigger pull
-uint8_t burstMode[3] = {0, 0, 0}; //0 for trigger release ends burst, 1 for finish burst amount
+bool Rune::Config::load() {
+  // check flash for a valid config
+  if (false) {
+    // implement loading config from flash here
+    return true;
+  }
+  else {
+    // load defaults
+    board_name = HW::RUNE_V0_2;
+
+    // load default switch configuration
+    io_switches.push_back({.function = TRIG, .IO = 2, .pullup = true, .invert = true});
+    io_switches.push_back({.function = REV, .IO = 3, .pullup = true, .invert = true});
+    io_switches.push_back({.function = SELECT, .IO = 6, .pullup = true, .invert = true});
+    io_switches.push_back({.function = SELECT, .IO = 5, .pullup = true, .invert = true});
+
+    pusher_type = PUSHER_SCOTCH_YOKE;
+  }
+
+  return false;
+}
