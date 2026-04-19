@@ -14,9 +14,9 @@ namespace Rune {
         Rune::States logicLines;
         Rune::Config* cfg;
         std::vector<Debounce::Button> switches;
-        PusherGeneric pusher;
+        PusherGeneric* pusher;
 
         Blaster(Rune::Config* config);
-        void init(HW::Board* board);
+        bool init(HW::Board* board);
     };
 }

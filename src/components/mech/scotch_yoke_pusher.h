@@ -13,14 +13,14 @@ namespace Rune {
                 WAITING,
                 NONE
             };
-            DRV::DRV824xS *driver;
-            Debounce::Button *cycle;
+            DRV::DRV824xS* driver;
+            Debounce::Button* cycle;
             Rune::PusherGeneric::pusherState_t pusherState;
             Rune::PusherScotchYoke::pusherSafetyTimeout_t psTimeout;
             repeating_timer_t pusherSafetyCallbackTimer;
 
         public:
-            PusherScotchYoke(wheelUpdateCallback_t callback, firemode_t **firemode_curr, DRV::DRV824xS *drv, Debounce::Button *cycleSwitch);
+            PusherScotchYoke(Debounce::Button* cycleSwitch);
             bool init();
             void pusherTick();
     };
