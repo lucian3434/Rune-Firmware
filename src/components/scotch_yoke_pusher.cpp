@@ -35,7 +35,7 @@ void Rune::PusherScotchYoke::pusherTick() {
   if (pusherState == RUNNING) {
     if (cycle->isRisingEdge()) {
       #ifndef USE_RPM_LOGGING
-      uprintf("INFO: Cycle switch pressed\r\n");
+      ulogf("INFO: Cycle switch pressed\r\n");
       #endif
       shotsFired++;
       if ((shotsFired >= firemode_curr->numShots) || ((!trig.isPressed()) && (firemode_curr->burstMode == 0))) {
@@ -68,7 +68,7 @@ bool Rune::PusherScotchYoke::pusherSafetyCallback(repeating_timer_t *rt) {
     pusherState = STOPPED;
     updateWheelState(SLOWING);
     // give a warning so anything listening to serial knows whats happening
-    uprintf("WARNING: Pusher safety timeout triggered. Check your pusher and cycle switch.\r\n");
+    ulogf("WARNING: Pusher safety timeout triggered. Check your pusher and cycle switch.\r\n");
   }
   psTimeout = NONE; // signal that the timeout has fired
   return false; // do not repeat

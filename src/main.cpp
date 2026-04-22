@@ -21,7 +21,7 @@ void updateWheelState(wheelState_t newState);
 uint8_t shotsFired = 0; // helper variable so we know how far into a burst we are
 
 // blaster state variables
-wheelState_t wheelState; // this gets set in the init function so that the timestamp is in sync
+volatile wheelState_t wheelState; // this gets set in the init function so that the timestamp is in sync
 absolute_time_t lastWheelStateUpdate;
 
 
@@ -44,7 +44,7 @@ float steadyThrottle[NUM_MOTORS]; // last known good throttle, used for ramp dow
 uint32_t rampDownTime = 500 * 1000; // motor ramp down time in us
 int32_t pidFrequency = 4000; // update frequency in hz
 int32_t loopTimeus = 1e6 / pidFrequency; // motor control loop time in us
-uint32_t rpmLast[NUM_MOTORS] = {0};
+uint32_t rpmLast[NUM_MOTORS];
 
 // loop variables for main logic loop
 int32_t mainLoopFrequency = 1000; // main logic loop update frequency in hz
@@ -95,6 +95,7 @@ void init() {
   
   for (uint8_t i = 0; i <NUM_MOTORS; i++){
     motors[i].setThrottle(0.0);
+    rpmLast[i] = 0;
   }
 
   // set initial value for wheel state
@@ -167,8 +168,17 @@ int main() {
   led.update();
 
   // keep execution going
+  uint32_t lastDrops = 0;
   while (true) {
-    tight_loop_contents();
+    // list dropped logs if there are more than last loop
+    uint32_t drops = getDrops();
+    if (drops != lastDrops) {
+      uprintf("Log drops: %lu\r\n", drops);
+      lastDrops = drops;
+    }
+
+    printLogBuffer(); // print any cached messages to the console
+
     #ifdef USE_RPM_LOGGING
     // dump cache once full
     if (cacheIndex == rpmLogLength) {
@@ -180,6 +190,8 @@ int main() {
     }
     sleep_ms(10);
     #endif
+
+    sleep_ms(10);
   }
 }
 
@@ -189,8 +201,9 @@ bool motorControlLoop(repeating_timer_t *rt) {
   for (uint8_t i = 0; i < NUM_MOTORS; i++) {
     // get rpm from motor
     uint32_t rpm = motors[i].readTelemetry();
-    if (((rpm & 0xff000000) == 0xff000000) && (wheelState != IDLE)) {
-      uprintf("M%u: Error 0x%x\r\n", i + 1, rpm);
+    // check for error in rpm reading
+    if (((rpm & 0xff000000) == 0xff000000) /*&& (wheelState != IDLE)*/) {
+      ulogf("M%hhu: Telemetry Error 0x%x\r\n", i + 1, rpm);
       rpm = rpmLast[i]; // for now, feed in old data
     }
     rpmLast[i] = rpm;
@@ -246,7 +259,7 @@ bool motorControlLoop(repeating_timer_t *rt) {
     if (atTarget == ((1 << NUM_MOTORS) - 1)) updateWheelState(STEADY);
     // or, if its been more than 200ms, assume something is wrong and switch state anyway
     else if (absolute_time_diff_us(lastWheelStateUpdate, get_absolute_time()) > 200000) {
-      uprintf("WARN: Spinup took >200ms\r\n");
+      ulogf("WARN: Spinup took >200ms\r\n");
       updateWheelState(STEADY);
     }
   }
@@ -267,7 +280,7 @@ void updateWheelState(wheelState_t newState) {
     }
   }
   else if (newState == STEADY) {
-    uprintf("INFO: trigger delay: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(lastWheelStateUpdate));
+    ulogf("INFO: trigger delay: %lums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(lastWheelStateUpdate));
     pusher.updatePusherState(Rune::PusherGeneric::pusherState_t::RUNNING); // start the pusher once we are at steady state
   }
   else if (newState == SLOWING) {
@@ -303,7 +316,7 @@ bool systemControlLoop(repeating_timer_t *rt) {
 
   // start the firing sequence if the trigger was just pressed
   if (trig.isRisingEdge()) {
-    uprintf("INFO: Trigger pressed\r\n");
+    ulogf("INFO: Trigger pressed\r\n");
 
     #ifdef USE_RPM_LOGGING
     cacheIndex = 0; // reset cache index to start logging
