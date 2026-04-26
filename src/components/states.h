@@ -4,13 +4,6 @@
 #include <vector>
 
 namespace Rune {
-    class States {
-        public:
-        VirtualLogicLine virtRev;
-        VirtualLogicLine virtTrig;
-        // more can be added as necessary
-        States();
-    };
 
     class VirtualLogicLine {
         private:
@@ -20,5 +13,13 @@ namespace Rune {
         VirtualLogicLine();
         void attach(Debounce::Button* ioswitch);
         bool getState();
+    };
+    
+    class States {
+        public:
+        VirtualLogicLine virtRev;
+        VirtualLogicLine virtTrig;
+        // more can be added as necessary
+        States();
     };
 }

@@ -15,9 +15,9 @@ if(WIN32)
 else()
     set(USERHOME $ENV{HOME})
 endif()
-set(sdkVersion 2.0.0)
+set(sdkVersion 2.2.0)
 set(toolchainVersion 13_2_Rel1)
-set(picotoolVersion 2.0.0)
+set(picotoolVersion 2.2.0-a4)
 set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
     include(${picoVscode})
@@ -47,10 +47,13 @@ add_executable(${PROJECT_NAME}
         src/pid.cpp
         src/config.cpp
         src/util.cpp
-        src/peripherals.cpp
+        #src/peripherals.cpp
         src/components/blaster.cpp
         src/components/board_def.cpp
-        src/components/states.cpp)
+        src/components/states.cpp
+        src/components/mech/pusher.cpp
+        src/components/mech/scotch_yoke_pusher.cpp
+        )
 
 pico_set_program_name(${PROJECT_NAME} "rune_firmware")
 pico_set_program_version(${PROJECT_NAME} "0.2")

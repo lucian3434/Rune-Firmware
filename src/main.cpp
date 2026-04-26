@@ -21,8 +21,8 @@
 
 void init();
 bool systemControlLoop(repeating_timer_t *rt);
-bool motorControlLoop(repeating_timer_t *rt);
-void updateWheelState(wheelState_t newState);
+//bool motorControlLoop(repeating_timer_t *rt);
+//void updateWheelState(wheelState_t newState);
 
 /*
 uint8_t shotsFired = 0; // helper variable so we know how far into a burst we are
@@ -71,15 +71,20 @@ struct firemode_t firemode_two;
 struct firemode_t firemode_three;
 */
 
+// loop variables for main logic loop
+int32_t mainLoopFrequency = 5; // main logic loop update frequency in hz
+int32_t mainLoopTimeus = 1e6 / mainLoopFrequency; // main logic loop time in us
+
 Rune::Config config = Rune::Config();
 Rune::Blaster blaster = Rune::Blaster(&config);
 HW::Board* board;
 
-LED::WS2812 led;
+LED::WS2812 led = LED::WS2812(0, pio1);
 
 void init() {
   // initialize generic io and usb
   stdio_init_all();
+  //getchar();
 
   config.load();
 
@@ -160,7 +165,7 @@ int main() {
   
   // the drv8244 WILL wake up
   uprintf("Waking DRV...\r\n");
-  while (!drv.wake()) {
+  while (false) {//!drv.wake()) {
     uprintf("Failed to wake DRV. Retrying...\r\n");
     sleep_ms(100);
   }
@@ -180,7 +185,7 @@ int main() {
 
   // register motor control loop function to run at the specified pid frequency
   repeating_timer_t motorControlLoopTimer;
-  bool timerAdded = add_repeating_timer_us(-loopTimeus, motorControlLoop, NULL, &motorControlLoopTimer);
+  bool timerAdded = true;//add_repeating_timer_us(-loopTimeus, motorControlLoop, NULL, &motorControlLoopTimer);
   if (timerAdded) {
     uprintf("PID loop registered!\r\n");
     bootStatus |= 0x4;
@@ -189,17 +194,21 @@ int main() {
     uprintf("Failed to register PID loop\r\n");
   }
 
-  if (bootStatus == 0x7) {
-    led.setColor(0x3d2700); // yellowish, not too bright
+  if (board->ws2812_data != HW::NO_ASSIGNMENT) {
+    if (true) {//bootStatus == 0x7) {
+      led.setColor(0x3d2700); // yellowish, not too bright
+    }
+    else {
+      led.setColor(0xFF0000); // red so we know somethings fucked up
+    }
+    led.update();
   }
-  else {
-    led.setColor(0xFF0000); // red so we know somethings fucked up
-  }
-  led.update();
 
   // keep execution going
   while (true) {
-    tight_loop_contents();
+    
+    printLogBuffer();
+
     #ifdef USE_RPM_LOGGING
     // dump cache once full
     if (cacheIndex == rpmLogLength) {
@@ -214,6 +223,18 @@ int main() {
   }
 }
 
+bool systemControlLoop(repeating_timer_t *rt) {
+  for (Debounce::Button& button : blaster.switches) {
+    button.update();
+  }
+
+  ulogf("Trig: %u, Rev: %u\r\n", blaster.logicLines.virtTrig.getState(), blaster.logicLines.virtRev.getState());
+
+  return true;
+}
+
+/*
+
 // this function runs on a timer, and sends commands to the motors
 bool motorControlLoop(repeating_timer_t *rt) {
   uint8_t atTarget = 0; // track if each motor is up to speed, and assume they arent
@@ -221,7 +242,7 @@ bool motorControlLoop(repeating_timer_t *rt) {
     // get rpm from motor
     uint32_t rpm = motors[i].readTelemetry();
     if (((rpm & 0xff000000) == 0xff000000) && (wheelState != IDLE)) {
-      uprintf("M%u: Error 0x%x\r\n", i + 1, rpm);
+      ulogf("M%u: Error 0x%x\r\n", i + 1, rpm);
       rpm = rpmLast[i]; // for now, feed in old data
     }
     rpmLast[i] = rpm;
@@ -277,7 +298,7 @@ bool motorControlLoop(repeating_timer_t *rt) {
     if (atTarget == ((1 << NUM_MOTORS) - 1)) updateWheelState(STEADY);
     // or, if its been more than 200ms, assume something is wrong and switch state anyway
     else if (absolute_time_diff_us(lastWheelStateUpdate, get_absolute_time()) > 200000) {
-      uprintf("WARN: Spinup took >200ms\r\n");
+      ulogf("WARN: Spinup took >200ms\r\n");
       updateWheelState(STEADY);
     }
   }
@@ -298,7 +319,7 @@ void updateWheelState(wheelState_t newState) {
     }
   }
   else if (newState == STEADY) {
-    uprintf("INFO: trigger delay: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(lastWheelStateUpdate));
+    ulogf("INFO: trigger delay: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(lastWheelStateUpdate));
     pusher.updatePusherState(Rune::PusherGeneric::pusherState_t::RUNNING); // start the pusher once we are at steady state
   }
   else if (newState == SLOWING) {
@@ -334,7 +355,7 @@ bool systemControlLoop(repeating_timer_t *rt) {
 
   // start the firing sequence if the trigger was just pressed
   if (trig.isRisingEdge()) {
-    uprintf("INFO: Trigger pressed\r\n");
+    ulogf("INFO: Trigger pressed\r\n");
 
     #ifdef USE_RPM_LOGGING
     cacheIndex = 0; // reset cache index to start logging
@@ -357,3 +378,5 @@ bool systemControlLoop(repeating_timer_t *rt) {
 
   return true; // repeat timer
 }
+
+*/

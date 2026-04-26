@@ -1,4 +1,5 @@
 #include "blaster.h"
+#include "./../util.h"
 
 Rune::Blaster::Blaster(Rune::Config* config) {
   logicLines = Rune::States();
@@ -10,25 +11,33 @@ Rune::Blaster::Blaster(Rune::Config* config) {
 bool Rune::Blaster::init(HW::Board* board) {
   // initialize io
   for (uint8_t i = 0; i < cfg->io_switches.size(); i++) {
-    switches.push_back(Debounce::Button(board->io[cfg->io_switches[i].IO], cfg->io_switches[i].pullup, cfg->io_switches[i].invert));
+    uprintf("IO %u -> ", cfg->io_switches[i].IO);
+    uint8_t pin = board->io[cfg->io_switches[i].IO];
+    bool pullup = cfg->io_switches[i].pullup;
+    bool invert = cfg->io_switches[i].invert;
+    switches.push_back(Debounce::Button(pin, invert, pullup));
     switches[i].init();
 
     // attach to virtual logic line if applicable
     switch (cfg->io_switches[i].function) {
       case Rune::Config::TRIG:
         logicLines.virtTrig.attach(&switches[i]);
+        uprintf("TRIG");
         break;
       case Rune::Config::REV:
         logicLines.virtRev.attach(&switches[i]);
+        uprintf("REV");
         break;
       default:
         break; // other functions can be implemented as needed
     }
+
+    uprintf("\r\n");
   }
 
   // initialize pusher
   switch (cfg->pusher_type) {
-    case Rune::Config::PUSHER_SCOTCH_YOKE:
+    case Rune::Config::PUSHER_SCOTCH_YOKE: {
       // get the cycle switch
       Debounce::Button* cycle = nullptr;
       for (uint8_t i = 0; i < cfg->io_switches.size(); i++) {
@@ -48,11 +57,12 @@ bool Rune::Blaster::init(HW::Board* board) {
       Rune::PusherScotchYoke p = Rune::PusherScotchYoke(cycle);
       pusher = &p;
       break;
-    
+    }
+    /*
     case Rune::Config::PUSHER_BASIC_SOLENOID:
       Rune::SolenoidPusher p = Rune::SolenoidPusher();
       pusher = &p;
-      break;
+      break; //*/
     default:
       break;
   }

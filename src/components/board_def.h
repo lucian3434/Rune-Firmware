@@ -43,14 +43,10 @@ namespace HW {
         adcFunction_t adc[4];
     };
 
-    Board rune_v0_2;
-    Board rune_v0_3;
+    extern Board rune_v0_2;
+    extern Board rune_v0_3;
 
-    Board* boards[] {
-        &rune_v0_2,
-        &rune_v0_3
-    };
+    extern Board* boards[2];
 
     uint8_t getADCSlice(HW::Board* board, adcFunction_t func);
 }
-

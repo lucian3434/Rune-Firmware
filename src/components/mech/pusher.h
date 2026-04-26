@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./../../config.h"
+#include "./../../util.h"
 
 namespace Rune {
     // Prototype class for a pusher module. Not for direct use.

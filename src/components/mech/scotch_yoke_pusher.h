@@ -4,6 +4,7 @@
 #include "drv/drv824xs.h"
 #include "pico/stdlib.h"
 #include "./../../util.h"
+#include "debounce/button.h"
 
 namespace Rune {
     class PusherScotchYoke : public PusherGeneric {
