@@ -22,7 +22,7 @@ namespace Rune {
 
         public:
             PusherScotchYoke(Debounce::Button* cycleSwitch);
-            bool init();
-            void pusherTick();
+            bool init() override;
+            void pusherTick() override;
     };
 }

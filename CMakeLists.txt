@@ -53,6 +53,8 @@ add_executable(${PROJECT_NAME}
         src/components/states.cpp
         src/components/mech/pusher.cpp
         src/components/mech/scotch_yoke_pusher.cpp
+
+        "src/components/fire control/firemode.cpp"
         )
 
 pico_set_program_name(${PROJECT_NAME} "rune_firmware")

@@ -72,7 +72,7 @@ struct firemode_t firemode_three;
 */
 
 // loop variables for main logic loop
-int32_t mainLoopFrequency = 5; // main logic loop update frequency in hz
+int32_t mainLoopFrequency = 1000; // main logic loop update frequency in hz
 int32_t mainLoopTimeus = 1e6 / mainLoopFrequency; // main logic loop time in us
 
 Rune::Config config = Rune::Config();
@@ -84,7 +84,7 @@ LED::WS2812 led = LED::WS2812(0, pio1);
 void init() {
   // initialize generic io and usb
   stdio_init_all();
-  //getchar();
+  getchar();
 
   config.load();
 
@@ -224,11 +224,23 @@ int main() {
 }
 
 bool systemControlLoop(repeating_timer_t *rt) {
-  for (Debounce::Button& button : blaster.switches) {
-    button.update();
+  blaster.updateIO();
+
+  if (blaster.logicLines.virtTrig.isRisingEdge()) {
+    ulogf("Trig\r\n");
+  }
+  if (blaster.logicLines.virtRev.isRisingEdge()) {
+    ulogf("Rev\r\n");
   }
 
-  ulogf("Trig: %u, Rev: %u\r\n", blaster.logicLines.virtTrig.getState(), blaster.logicLines.virtRev.getState());
+  return true;
+}
+
+bool motorControlLoop(repeating_timer_t *rt) {
+  bool atTarget = true;
+
+  
+
 
   return true;
 }

@@ -18,5 +18,6 @@ namespace Rune {
 
         Blaster(Rune::Config* config);
         bool init(HW::Board* board);
+        void updateIO();
     };
 }

@@ -10,6 +10,8 @@ Rune::Blaster::Blaster(Rune::Config* config) {
 
 bool Rune::Blaster::init(HW::Board* board) {
   // initialize io
+  switches.reserve(cfg->io_switches.size());
+
   for (uint8_t i = 0; i < cfg->io_switches.size(); i++) {
     uprintf("IO %u -> ", cfg->io_switches[i].IO);
     uint8_t pin = board->io[cfg->io_switches[i].IO];
@@ -19,17 +21,13 @@ bool Rune::Blaster::init(HW::Board* board) {
     switches[i].init();
 
     // attach to virtual logic line if applicable
-    switch (cfg->io_switches[i].function) {
-      case Rune::Config::TRIG:
-        logicLines.virtTrig.attach(&switches[i]);
-        uprintf("TRIG");
-        break;
-      case Rune::Config::REV:
-        logicLines.virtRev.attach(&switches[i]);
-        uprintf("REV");
-        break;
-      default:
-        break; // other functions can be implemented as needed
+    if (cfg->io_switches[i].function & Rune::Config::TRIG) {
+      logicLines.virtTrig.attach(&switches[i]);
+      uprintf("TRIG ");
+    }
+    if (cfg->io_switches[i].function & Rune::Config::REV) {
+      logicLines.virtRev.attach(&switches[i]);
+      uprintf("REV ");
     }
 
     uprintf("\r\n");
@@ -71,4 +69,14 @@ bool Rune::Blaster::init(HW::Board* board) {
   }
 
   return true; // successful initialization
+}
+
+void Rune::Blaster::updateIO() {
+  // ensure that all io is updated a single time
+  for (Debounce::Button& button : switches) {
+    button.update();
+  }
+
+  logicLines.virtRev.update();
+  logicLines.virtTrig.update();
 }

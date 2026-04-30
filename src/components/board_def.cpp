@@ -10,7 +10,7 @@ uint8_t HW::getADCSlice(HW::Board* board, adcFunction_t func) {
 
 
 HW::Board HW::rune_v0_2 = {
-    .escs = {0, 1, 2, 3},
+    .escs = {HW::NO_ASSIGNMENT, 0, 1, 2, 3},
     .esc_enable = 25,
     .esc_telem = 4,
     .I2C_scl = 5,
@@ -28,7 +28,7 @@ HW::Board HW::rune_v0_2 = {
 };
 
 HW::Board HW::rune_v0_3 = {
-    .escs = {0, 1, 2, 3},
+    .escs = {HW::NO_ASSIGNMENT, 0, 1, 2, 3},
     .esc_enable = 25,
     .esc_telem = 4,
     .I2C_scl = 6,

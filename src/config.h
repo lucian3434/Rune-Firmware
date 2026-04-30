@@ -10,10 +10,11 @@ namespace Rune {
   class Config {
     public:
       enum switchFunction_t {
-        TRIG = 0,
-        REV = 1,
-        CYCLE = 2,
-        SELECT = 3
+        TRIG = 1,
+        REV = 2,
+        CYCLE = 4,
+        SELECT = 8,
+        IDLE = 16
       };
 
       enum pusherType_t {
@@ -22,16 +23,43 @@ namespace Rune {
         PUSHER_BASIC_SOLENOID = 2
       };
 
-      struct IOSwitch {
+      enum selectorType_t {
+        NO_SELECTOR = 0,
+        SELECTOR_SLIDE = 1,
+        SELECTOR_PUSH = 2, // not supported
+      };
+
+      struct IOSwitchConfig {
         switchFunction_t function;
         uint8_t IO;
         bool pullup;
         bool invert;
       };
 
-      std::vector<IOSwitch> io_switches;
+      enum motorType_t {
+        MOTOR_DSHOT = 0, // not supported
+        MOTOR_BIDSHOT = 1
+      };
+
+      struct MotorPIDConfig {
+        float p;
+        float i;
+        float d;
+      };
+
+      struct MotorConfig {
+        uint8_t channel;
+        motorType_t type;
+        uint8_t poles;
+        MotorPIDConfig pidConfig;
+      };
+
+      std::vector<IOSwitchConfig> io_switches;
+      selectorType_t selector_type;
+      std::vector<MotorConfig> motors;
       HW::boardVersion_t board_name;
       pusherType_t pusher_type;
+      std::vector<std::vector<uint32_t>> motor_rpm_targets; // [cap][motor]
 
       bool load();
       Config();
