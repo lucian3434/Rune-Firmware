@@ -9,6 +9,7 @@ Rune::Blaster::Blaster(Rune::Config* config) {
 }
 
 bool Rune::Blaster::init(HW::Board* board) {
+  // initialize hardware then build software layers on top
   // initialize io
   switches.reserve(cfg->io_switches.size());
 
@@ -33,6 +34,24 @@ bool Rune::Blaster::init(HW::Board* board) {
     uprintf("\r\n");
   }
 
+  // initialize pusher driver
+  /* TODO: add support for anything other than a DRV824x
+  switch (board->pusher_driver)
+  {
+  case HW::DRV824XS: */
+    DRV::DRV824xS drv = DRV::DRV824xS(board->DRV_ph, board->DRV_en, board->DRV_nsleep, board->DRV_mosi, board->DRV_miso, board->DRV_cs, board->DRV_sclk, spi0);
+    /*
+    break;
+  
+  default:
+    break;
+  }
+  */
+
+  // hardware initialization complete, move on to software layer
+  // initialize fire modes
+  Rune::FireModeGeneric* curr_mode;
+
   // initialize pusher
   switch (cfg->pusher_type) {
     case Rune::Config::PUSHER_SCOTCH_YOKE: {
@@ -52,8 +71,7 @@ bool Rune::Blaster::init(HW::Board* board) {
       }
 
       // create pusher object
-      Rune::PusherScotchYoke p = Rune::PusherScotchYoke(cycle);
-      pusher = &p;
+      pusher = new Rune::PusherScotchYoke(&curr_mode, cycle, &drv);
       break;
     }
     /*

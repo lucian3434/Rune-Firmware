@@ -1,94 +1,84 @@
 #include "scotch_yoke_pusher.h"
+#include "./../fire control/firemode.h"
 
-Rune::PusherScotchYoke::PusherScotchYoke(Debounce::Button* cycleSwitch) {
-  cycle = cycleSwitch;
-  psTimeout = NONE;
-  pusherState = STOPPED;
-}
-
-bool Rune::PusherScotchYoke::init() {
-  driver->init();
-  cycle->init();
-  return true;
-}
-
-void Rune::PusherScotchYoke::pusherTick() {
-  // TBD
-}
-
-
-/*
-Rune::PusherScotchYoke::PusherScotchYoke(wheelUpdateCallback_t callback, firemode_t **firemode_curr, DRV::DRV824xS *drv, Debounce::Button *cycleSwitch) {
-  updateWheelState = callback;
+Rune::PusherScotchYoke::PusherScotchYoke(FireModeGeneric** firemode_curr, Debounce::Button* cycleSwitch, DRV::DRV824xS* drv) {
   firemode = firemode_curr;
-  driver = drv;
   cycle = cycleSwitch;
+  driver = drv;
   psTimeout = NONE;
   pusherState = STOPPED;
+  stopOnCycle = true;
 }
 
-// returns true if the pusher module was successfully initialized
 bool Rune::PusherScotchYoke::init() {
   driver->init();
   cycle->init();
   return true;
 }
 
-// handler code for when the trigger is pressed
-void Rune::PusherScotchYoke::triggerRisingEdge() {
-  // cancel the pusher safety timer now that we've pressed the trigger
-  if (psTimeout == WAITING) {
-    cancel_repeating_timer(&pusherSafetyCallbackTimer);
-    psTimeout = NONE;
-  }
-}
-
-void Rune::PusherScotchYoke::triggerFallingEdge() {
-  //add_repeating_timer_ms(-200, pusherSafetyCallback, NULL, &pusherSafetyCallbackTimer);
-  psTimeout = WAITING;
-}
-
 void Rune::PusherScotchYoke::pusherTick() {
-  // if the pusher is running, check to see if it hit the cycle switch before continuing
   if (pusherState == RUNNING) {
     if (cycle->isRisingEdge()) {
-      #ifndef USE_RPM_LOGGING
-      ulogf("INFO: Cycle switch pressed\r\n");
-      #endif
-      shotsFired++;
-      if ((shotsFired >= firemode_curr->numShots) || ((!trig.isPressed()) && (firemode_curr->burstMode == 0))) {
-        // stop the pusher if we've finished the burst or let go of the trigger
-        updatePusherState(STOPPED);
-        updateWheelState(SLOWING); // and tell the wheels to slow down too
+      // increment shots fired
+      (*firemode)->shotsFired++;
+
+      if (stopOnCycle) {
+        pusherState = STOPPED;
+        driver->brake();
       }
+
+      ulogf("INFO: Cycle switch pressed\r\n");
     }
     else {
-      drv.drive();
+      driver->drive();
     }
+  }   
+}
+
+void Rune::PusherScotchYoke::startPusher(bool single) {
+  pusherState = RUNNING;
+  stopOnCycle = single;
+
+  // make sure safety timeout won't stop us early
+  if (psTimeout == WAITING) {
+    cancel_alarm(pusherSafetyAlarmId);
+    psTimeout = NONE;
   }
-  // brake if the pusher isn't supposed to be moving anymore
-  if (pusherState == STOPPED) {
-    drv.brake();
+
+  // then set the safety again if we're in single shot mode since stopPusher() might not be called
+  if (single) {
+    startSafetyTimer();
   }
 }
 
-void Rune::PusherScotchYoke::updatePusherState(Rune::PusherGeneric::pusherState_t newState) {
-  pusherState = newState;
-  if (newState == RUNNING) {
-    shotsFired = 0;
-  }
-}
-
-// check to make sure the pusher isnt stuck on for too long after the trigger is released (dead switch/cannot travel/etc)
-bool Rune::PusherScotchYoke::pusherSafetyCallback(repeating_timer_t *rt) {
-  // check if the pusher is still running
-  if (pusherState == RUNNING) {
-    pusherState = STOPPED;
-    updateWheelState(SLOWING);
-    // give a warning so anything listening to serial knows whats happening
+int64_t Rune::PusherScotchYoke::pusherSafetyCallback(alarm_id_t id, __unused void* userData) {
+  Rune::PusherScotchYoke* self = static_cast<Rune::PusherScotchYoke*>(userData);
+  if (self->pusherState == RUNNING) {
+    self->pusherState = STOPPED;
+    self->driver->brake();
     ulogf("WARNING: Pusher safety timeout triggered. Check your pusher and cycle switch.\r\n");
   }
-  psTimeout = NONE; // signal that the timeout has fired
-  return false; // do not repeat
+  return 0;
 }
-*/
+
+void Rune::PusherScotchYoke::stopPusher() {
+  stopOnCycle = true;
+  startSafetyTimer();
+}
+
+void Rune::PusherScotchYoke::startSafetyTimer() {
+  // cancel existing alarm if it's already running
+  if (psTimeout != NONE) {
+    cancel_alarm(pusherSafetyAlarmId);
+    psTimeout = NONE;
+  }
+
+  // schedule safety timeout
+  pusherSafetyAlarmId = add_alarm_in_ms(200, pusherSafetyCallback, this, false);
+  if (pusherSafetyAlarmId >= 0) {
+    psTimeout = WAITING;
+  }
+  else {
+    ulogf("ERROR: Failed to start pusher safety timer\r\n");
+  }
+}

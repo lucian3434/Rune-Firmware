@@ -19,6 +19,11 @@ namespace HW {
         RUNE_V0_3 = 1
     };
 
+    enum pusherDriver_t {
+        NONE = 0,
+        DRV824XS = 1
+    };
+
     struct Board {
         std::vector<uint8_t> escs;
         uint8_t esc_enable;
@@ -30,6 +35,7 @@ namespace HW {
         std::vector<uint8_t> io;
 
         // this will need work to support other boards
+        pusherDriver_t pusher_driver;
         uint8_t DRV_nsleep;
         uint8_t DRV_en;
         uint8_t DRV_ph;

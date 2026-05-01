@@ -46,7 +46,7 @@ bool Rune::Config::load() {
       }
     }
 
-
+    
   }
 
   return successfullyLoaded;

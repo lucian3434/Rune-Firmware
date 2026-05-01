@@ -8,7 +8,6 @@ uint8_t HW::getADCSlice(HW::Board* board, adcFunction_t func) {
     return 0xff; // not found
 }
 
-
 HW::Board HW::rune_v0_2 = {
     .escs = {HW::NO_ASSIGNMENT, 0, 1, 2, 3},
     .esc_enable = 25,
@@ -16,6 +15,7 @@ HW::Board HW::rune_v0_2 = {
     .I2C_scl = 5,
     .I2C_sda = 6,
     .io = {HW::NO_ASSIGNMENT, 10, 7, 11, 12, 8, 9},
+    .pusher_driver = HW::DRV824XS,
     .DRV_nsleep = 16,
     .DRV_en = 17,
     .DRV_ph = 18,
@@ -34,6 +34,7 @@ HW::Board HW::rune_v0_3 = {
     .I2C_scl = 6,
     .I2C_sda = 7,
     .io = {HW::NO_ASSIGNMENT, 26, 8, 11, 12, 9, 10, 13, 14},
+    .pusher_driver = HW::DRV824XS,
     .DRV_nsleep = 16,
     .DRV_en = 17,
     .DRV_ph = 18,

@@ -3,6 +3,9 @@
 #include "states.h"
 #include "board_def.h"
 #include "./../config.h"
+
+#include "./fire control/firemode.h"
+
 #include "mech/pusher.h"
 #include "mech/solenoid_pusher.h"
 #include "mech/scotch_yoke_pusher.h"
