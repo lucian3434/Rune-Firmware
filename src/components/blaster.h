@@ -16,13 +16,14 @@
 namespace Rune {
     // this class manages the hardware and state of the blaster
     class Blaster {
+        private:
+        std::vector<Debounce::Button> switches;
         public:
         Rune::States logicLines;
         Rune::Config* cfg;
-        std::vector<Debounce::Button> switches;
         PusherGeneric* pusher;
-        //uint8_t currFireMode;
         FireModeGeneric** currFireMode;
+        std::vector<Debounce::Button*> selectors;
         std::vector<Rune::FireModeGeneric*> fireModes;
 
         Blaster(Rune::Config* config);

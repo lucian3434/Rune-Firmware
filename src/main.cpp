@@ -8,38 +8,15 @@
 #include "led/ws2812.h"
 
 /*
-#include "config.h"
-#include "util.h"
-
 #include "pid.h"
-#include "states.h"
-
-#include "components/scotch_yoke_pusher.h"
-#include "components/solenoid_pusher.h"
 */
 
 
 void init();
 bool systemControlLoop(repeating_timer_t *rt);
 bool motorControlLoop(repeating_timer_t *rt);
-//void updateWheelState(wheelState_t newState);
 
 /*
-uint8_t shotsFired = 0; // helper variable so we know how far into a burst we are
-
-// blaster state variables
-wheelState_t wheelState; // this gets set in the init function so that the timestamp is in sync
-absolute_time_t lastWheelStateUpdate;
-
-
-#ifdef PUSHER_SCOTCH_YOKE
-Rune::PusherScotchYoke pusher = Rune::PusherScotchYoke(&updateWheelState, &firemode_curr, &drv, &cycle);
-#endif
-
-#ifdef PUSHER_BASIC_SOLENOID
-Rune::SolenoidPusher pusher = Rune::SolenoidPusher(&updateWheelState, &firemode_curr, &drv);
-#endif 
-
 // helper variables for PID control
 // these pid values work for the most part. not the greatest, but better than nothing lol
 PID mPID[NUM_MOTORS] {};
@@ -64,11 +41,6 @@ uint32_t rpmCache[rpmLogLength][NUM_MOTORS] = {0};
 uint16_t throttleCache[rpmLogLength][NUM_MOTORS] = {0}; // float gets converted to an integer [0, 1999]
 uint16_t cacheIndex = rpmLogLength + 1;
 #endif
-
-// fire mode storage
-struct firemode_t firemode_one;
-struct firemode_t firemode_two;
-struct firemode_t firemode_three;
 */
 
 // loop variables for main logic loop
@@ -239,13 +211,24 @@ bool systemControlLoop(repeating_timer_t *rt) {
     ulogf("Trig\r\n");
   }
 
-  // update fire mode status
   // set new fire mode if necessary
   uint8_t selectorPos = 0;
-  for (uint8_t i = 0; i < 0; i++) {
-    //selectorPos |= /*something*/.isPressed() << i;
+  switch (config.selector_type) {
+    case Rune::Config::SELECTOR_SLIDE:
+      for (uint8_t i = 0; i < blaster.selectors.size(); i++) {
+        selectorPos |= blaster.selectors[i]->isPressed() << i;
+      }
+      break;
+    default:
+      break;
   }
-  blaster.currFireMode = &(blaster.fireModes[selectorPos]);
+  
+  // check that a valid selector position was produced
+  if (selectorPos < blaster.fireModes.size()) {
+    blaster.currFireMode = &(blaster.fireModes[selectorPos]);
+  }
+
+  // update fire mode status
   (*blaster.currFireMode)->tick(&blaster.logicLines, blaster.pusher);
 
   // update pusher status

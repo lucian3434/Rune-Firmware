@@ -5,6 +5,7 @@ Rune::Blaster::Blaster(Rune::Config* config) {
   logicLines = Rune::States();
   cfg = config;
   switches = {};
+  selectors = {};
   fireModes = {};
   currFireMode = nullptr;
   pusher = nullptr;
@@ -37,7 +38,7 @@ bool Rune::Blaster::init(HW::Board* board) {
       uprintf("CYCLE ");
     }
     if (cfg->io_switches[i].function & Rune::Config::SELECT) {
-      // add to set of selector switches
+      selectors.push_back(&switches[i]);
       uprintf("SELECT ");
     }
 
@@ -48,22 +49,26 @@ bool Rune::Blaster::init(HW::Board* board) {
   
   // initialize fire modes
   fireModes.reserve(cfg->fire_modes.size());
+  uprintf("Fire Modes:\r\n");
   for (uint8_t i = 0; i < cfg->fire_modes.size(); i++) {
     switch (cfg->fire_modes[i]) {
       case Rune::Config::FM_SEMI:
         fireModes.push_back(new Rune::FireModeSemi());
+        uprintf("Semi ");
         break;
       case Rune::Config::FM_BURST:
         fireModes.push_back(new Rune::FireModeBurst(3, true));
+        uprintf("Burst ");
         break;
       case Rune::Config::FM_FULL:
         fireModes.push_back(new Rune::FireModeFull());
+        uprintf("FullAuto ");
         break;
       default:
         break;
     }
   }
-  //currFireMode = &fireModes[0];
+  uprintf("\r\n");
 
   // initialize pusher
   switch (cfg->pusher_type) {
