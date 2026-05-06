@@ -55,7 +55,11 @@ add_executable(${PROJECT_NAME}
         src/components/mech/scotch_yoke_pusher.cpp
 
         "src/components/fire control/firemode.cpp"
+        "src/components/fire control/semi.cpp"
         )
+
+# tell compiler to suppress ABI update notices
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-psabi)
 
 pico_set_program_name(${PROJECT_NAME} "rune_firmware")
 pico_set_program_version(${PROJECT_NAME} "0.2")

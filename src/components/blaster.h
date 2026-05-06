@@ -5,6 +5,7 @@
 #include "./../config.h"
 
 #include "./fire control/firemode.h"
+#include "./fire control/semi.h"
 
 #include "mech/pusher.h"
 #include "mech/solenoid_pusher.h"
@@ -18,6 +19,9 @@ namespace Rune {
         Rune::Config* cfg;
         std::vector<Debounce::Button> switches;
         PusherGeneric* pusher;
+        //uint8_t currFireMode;
+        FireModeGeneric** currFireMode;
+        std::vector<Rune::FireModeGeneric*> fireModes;
 
         Blaster(Rune::Config* config);
         bool init(HW::Board* board);

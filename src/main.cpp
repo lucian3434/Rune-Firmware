@@ -90,7 +90,7 @@ void init() {
 
   board = HW::boards[config.board_name];
 
-    if (board->ws2812_data != HW::NO_ASSIGNMENT) {
+  if (board->ws2812_data != HW::NO_ASSIGNMENT) {
     // initialize status LED
     led = LED::WS2812(board->ws2812_data, pio1);
     led.init();
@@ -98,21 +98,16 @@ void init() {
     led.update();
   }
 
-  blaster.init(board);
+  uprintf("Initializing Board...");
+  // ensure hardware is correctly initialized
+  HW::initBoard(board);
+  uprintf("COMPLETE\r\n");
 
-  
+  uprintf("Initializing Blaster...\r\n");
+  blaster.init(board);
+  uprintf("Initializing Blaster COMPLETE\r\n");
   
   /*
-  // initialize buttons
-  trig.init();
-  cycle.init();
-  sel1.init();
-  sel2.init();
-
-  // initialize status LED
-  led.init();
-  led.setColor(0x0000FF); // blue to signal that we're booting
-  led.update();
 
   // initialize motors
   for (uint8_t i = 0; i < NUM_MOTORS; i++) {
@@ -163,21 +158,23 @@ int main() {
   init();
   uint8_t bootStatus = 0;
   
-  // the drv8244 WILL wake up
-  uprintf("Waking DRV...\r\n");
-  while (false) {//!drv.wake()) {
-    uprintf("Failed to wake DRV. Retrying...\r\n");
-    sleep_ms(100);
+  // wake pusher driver if necessary
+  if (board->pusher_driver == HW::DRV824XS) {
+    uprintf("Waking DRV...");
+    while (!board->pusher_module->wake()) {
+      uprintf("\r\nFailed to wake DRV. Retrying...");
+      sleep_ms(100);
+    }
+    uprintf("COMPLETE\r\n");
   }
-  uprintf("Successfully woke DRV!\r\n");
-  bootStatus |= 0x1;
+  bootStatus |= 0x1; // pusher driver ready
 
   // register main logic loop
   repeating_timer_t mainLogicLoopTimer;
   bool logicLoopAdded = add_repeating_timer_us(-mainLoopTimeus, systemControlLoop, NULL, &mainLogicLoopTimer);
   if (logicLoopAdded) {
     uprintf("Main logic loop registered!\r\n");
-    bootStatus |= 0x2;
+    bootStatus |= 0x2; // main logic loop ready
   }
   else {
     uprintf("Failed to register main logic loop\r\n");
@@ -188,18 +185,22 @@ int main() {
   bool timerAdded = true;//add_repeating_timer_us(-loopTimeus, motorControlLoop, NULL, &motorControlLoopTimer);
   if (timerAdded) {
     uprintf("PID loop registered!\r\n");
-    bootStatus |= 0x4;
+    bootStatus |= 0x4; // motor control loop ready
   }
   else {
     uprintf("Failed to register PID loop\r\n");
   }
 
+
   if (board->ws2812_data != HW::NO_ASSIGNMENT) {
-    if (true) {//bootStatus == 0x7) {
+    uprintf("Final boot status code: 0x%X ", bootStatus);
+    if (bootStatus == 0x7) {
       led.setColor(0x3d2700); // yellowish, not too bright
+      uprintf("GOOD\r\n");
     }
     else {
-      led.setColor(0xFF0000); // red so we know somethings fucked up
+      led.setColor(0xFF0000); // red so we know something is fucked up
+      uprintf("BAD, see discord for help\r\n");
     }
     led.update();
   }
@@ -226,12 +227,29 @@ int main() {
 bool systemControlLoop(repeating_timer_t *rt) {
   blaster.updateIO();
 
-  if (blaster.logicLines.virtTrig.isRisingEdge()) {
-    ulogf("Trig\r\n");
-  }
+  // log state updates
   if (blaster.logicLines.virtRev.isRisingEdge()) {
     ulogf("Rev\r\n");
   }
+  if (blaster.logicLines.virtTrig.isRisingEdge()) {
+    ulogf("Trig\r\n");
+  }
+
+  // update fire mode status
+  
+  // set new fire mode if necessary
+  uint8_t selectorPos = 0;
+  for (uint8_t i = 0; i < 0; i++) {
+    //selectorPos |= /*something*/.isPressed() << i;
+  }
+  blaster.currFireMode = &(blaster.fireModes[selectorPos]);
+
+  (*blaster.currFireMode)->tick(&blaster.logicLines, blaster.pusher);
+
+  // update pusher status
+  blaster.pusher->pusherTick();
+
+  // update wheel state
 
   return true;
 }

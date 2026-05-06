@@ -1,11 +1,22 @@
 #include "board_def.h"
 
+void HW::initBoard(HW::Board* board) {
+    switch (board->pusher_driver) {
+        case HW::DRV824XS:
+            board->pusher_module = new DRV::DRV824xS(board->DRV_en, board->DRV_ph, board->DRV_nsleep, board->DRV_mosi, board->DRV_miso, board->DRV_cs, board->DRV_sclk, spi0);
+            board->pusher_module->init();
+            break;
+        default:
+            break;
+    }
+}
+
 // consider renaming
 uint8_t HW::getADCSlice(HW::Board* board, adcFunction_t func) {
     for (uint8_t i = 0; i < 4; i++) {
         if (board->adc[i] == func) return i;
     }
-    return 0xff; // not found
+    return HW::NO_ASSIGNMENT; // not found
 }
 
 HW::Board HW::rune_v0_2 = {

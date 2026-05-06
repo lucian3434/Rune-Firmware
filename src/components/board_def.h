@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include "drv/drv824xs.h"
 
 namespace HW {
     const uint8_t NO_ASSIGNMENT = 0xff;
@@ -34,8 +35,9 @@ namespace HW {
 
         std::vector<uint8_t> io;
 
-        // this will need work to support other boards
+        // TODO: generic pusher type for compatibility with other boards
         pusherDriver_t pusher_driver;
+        DRV::DRV824xS* pusher_module;
         uint8_t DRV_nsleep;
         uint8_t DRV_en;
         uint8_t DRV_ph;
@@ -53,6 +55,8 @@ namespace HW {
     extern Board rune_v0_3;
 
     extern Board* boards[2];
+
+    void initBoard(Board* board);
 
     uint8_t getADCSlice(HW::Board* board, adcFunction_t func);
 }

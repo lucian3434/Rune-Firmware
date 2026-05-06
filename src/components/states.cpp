@@ -32,3 +32,11 @@ bool Rune::VirtualLogicLine::isRisingEdge() {
 bool Rune::VirtualLogicLine::isFallingEdge() {
     return (state & 0x03) == 0x02;
 }
+
+// this is probably pretty sketchy honestly
+// this is included so that a fire mode can keep the rev line high if it is released while firing
+// however a more elegant solution would probably just be to poll the fire mode along with the switches
+// though im hesitant to say that is a truly elegant way of doing things itself
+void Rune::VirtualLogicLine::forceHigh() {
+    state |= 0x1;
+}

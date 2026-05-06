@@ -5,6 +5,8 @@ Rune::Blaster::Blaster(Rune::Config* config) {
   logicLines = Rune::States();
   cfg = config;
   switches = {};
+  fireModes = {};
+  currFireMode = nullptr;
   pusher = nullptr;
 }
 
@@ -30,27 +32,32 @@ bool Rune::Blaster::init(HW::Board* board) {
       logicLines.virtRev.attach(&switches[i]);
       uprintf("REV ");
     }
+    if (cfg->io_switches[i].function & Rune::Config::CYCLE) {
+      // connect in pusher init
+      uprintf("CYCLE ");
+    }
+    if (cfg->io_switches[i].function & Rune::Config::SELECT) {
+      // add to set of selector switches
+      uprintf("SELECT ");
+    }
 
     uprintf("\r\n");
   }
 
-  // initialize pusher driver
-  /* TODO: add support for anything other than a DRV824x
-  switch (board->pusher_driver)
-  {
-  case HW::DRV824XS: */
-    DRV::DRV824xS drv = DRV::DRV824xS(board->DRV_ph, board->DRV_en, board->DRV_nsleep, board->DRV_mosi, board->DRV_miso, board->DRV_cs, board->DRV_sclk, spi0);
-    /*
-    break;
+  // initialize software layer
   
-  default:
-    break;
-  }
-  */
-
-  // hardware initialization complete, move on to software layer
   // initialize fire modes
-  Rune::FireModeGeneric* curr_mode;
+  fireModes.reserve(cfg->fire_modes.size());
+  for (uint8_t i = 0; i < cfg->fire_modes.size(); i++) {
+    switch (cfg->fire_modes[i]) {
+      case Rune::Config::FM_SEMI:
+        fireModes.push_back(new Rune::FireModeSemi());
+        break;
+      
+      default:
+        break;
+    }
+  }
 
   // initialize pusher
   switch (cfg->pusher_type) {
@@ -71,7 +78,17 @@ bool Rune::Blaster::init(HW::Board* board) {
       }
 
       // create pusher object
-      pusher = new Rune::PusherScotchYoke(&curr_mode, cycle, &drv);
+      if (board->pusher_driver == HW::DRV824XS) {
+        pusher = new Rune::PusherScotchYoke(currFireMode, cycle, board->pusher_module);
+      }
+      else {
+        uprintf("ERROR: Non-DRV824xS pusher not currently supported\r\n");
+        uprintf(" - while attempting to initialize pusher object in blaster.cpp\r\n");
+        while (true) {
+          uprintf("ERR:!DRV\r\n");
+          sleep_ms(100);
+        }; // loop forever so they know something is Wrong
+      }
       break;
     }
     /*

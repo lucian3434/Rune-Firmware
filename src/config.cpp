@@ -21,7 +21,8 @@ bool Rune::Config::load() {
 
     // load default switch configuration
     io_switches.push_back({.function = (Rune::Config::switchFunction_t)(TRIG | REV), .IO = 2, .pullup = true, .invert = true});
-    io_switches.push_back({.function = REV, .IO = 1, .pullup = true, .invert = false});
+    //io_switches.push_back({.function = REV, .IO = 1, .pullup = true, .invert = false});
+    io_switches.push_back({.function = CYCLE, .IO = 1, .pullup = true, .invert = true});
     io_switches.push_back({.function = SELECT, .IO = 6, .pullup = true, .invert = true});
     io_switches.push_back({.function = SELECT, .IO = 5, .pullup = true, .invert = true});
 
@@ -46,7 +47,10 @@ bool Rune::Config::load() {
       }
     }
 
-    
+    // load fire modes
+    fire_modes.push_back(FM_SEMI);
+    //fire_modes.push_back(FM_BURST);
+    // fire_modes.push_back(FM_FULL);
   }
 
   return successfullyLoaded;

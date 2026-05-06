@@ -17,6 +17,7 @@ namespace Rune {
         bool isRisingEdge();
         bool isFallingEdge();
         void update();
+        void forceHigh();
     };
     
     class States {

@@ -54,12 +54,20 @@ namespace Rune {
         MotorPIDConfig pidConfig;
       };
 
+      enum fireMode_t {
+        FM_SAFETY = 0,
+        FM_SEMI = 1,
+        FM_BURST = 2,
+        FM_FULL = 3
+      };
+
       std::vector<IOSwitchConfig> io_switches;
       selectorType_t selector_type;
       std::vector<MotorConfig> motors;
       HW::boardVersion_t board_name;
       pusherType_t pusher_type;
       std::vector<std::vector<uint32_t>> motor_rpm_targets; // [cap][motor]
+      std::vector<fireMode_t> fire_modes;
 
       bool load();
       Config();
