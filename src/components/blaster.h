@@ -4,8 +4,10 @@
 #include "board_def.h"
 #include "./../config.h"
 
-#include "./fire control/firemode.h"
-#include "./fire control/semi.h"
+#include "fire control/firemode.h"
+#include "fire control/semi.h"
+#include "fire control/burst.h"
+#include "fire control/full.h"
 
 #include "mech/pusher.h"
 #include "mech/solenoid_pusher.h"

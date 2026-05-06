@@ -259,7 +259,7 @@ bool systemControlLoop(repeating_timer_t *rt) {
 bool motorControlLoop(repeating_timer_t *rt) {
   bool atTarget = true;
 
-  
+  // pid logic
 
   blaster.logicLines.wheelsAtSpeed = atTarget;
   return true;

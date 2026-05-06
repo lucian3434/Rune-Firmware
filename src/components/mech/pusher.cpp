@@ -7,7 +7,7 @@ Rune::PusherGeneric::PusherGeneric() {
   pusherState = STOPPED;
 }
 
-Rune::PusherGeneric::PusherGeneric(FireModeGeneric** firemode_curr) {
+Rune::PusherGeneric::PusherGeneric(FireModeGeneric*** firemode_curr) {
   firemode = firemode_curr;
   pusherState = STOPPED;
 }

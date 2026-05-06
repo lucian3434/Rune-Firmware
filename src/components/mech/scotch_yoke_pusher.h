@@ -24,7 +24,7 @@ namespace Rune {
             void startSafetyTimer();
 
         public:
-            PusherScotchYoke(FireModeGeneric** firemode_curr, Debounce::Button* cycleSwitch, DRV::DRV824xS* drv);
+            PusherScotchYoke(FireModeGeneric*** firemode_curr, Debounce::Button* cycleSwitch, DRV::DRV824xS* drv);
             bool init() override;
             void pusherTick() override;
             void startPusher(bool single = false) override;

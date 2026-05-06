@@ -1,7 +1,7 @@
 #include "scotch_yoke_pusher.h"
 #include "./../fire control/firemode.h"
 
-Rune::PusherScotchYoke::PusherScotchYoke(FireModeGeneric** firemode_curr, Debounce::Button* cycleSwitch, DRV::DRV824xS* drv) {
+Rune::PusherScotchYoke::PusherScotchYoke(FireModeGeneric*** firemode_curr, Debounce::Button* cycleSwitch, DRV::DRV824xS* drv) {
   firemode = firemode_curr;
   cycle = cycleSwitch;
   driver = drv;
@@ -20,7 +20,7 @@ void Rune::PusherScotchYoke::pusherTick() {
   if (pusherState == RUNNING) {
     if (cycle->isRisingEdge()) {
       // increment shots fired
-      (*firemode)->shotsFired++;
+      (**firemode)->shotsFired++;
 
       if (stopOnCycle) {
         pusherState = STOPPED;
@@ -33,6 +33,9 @@ void Rune::PusherScotchYoke::pusherTick() {
       driver->drive();
     }
   }   
+  else {
+    driver->brake();
+  }
 }
 
 void Rune::PusherScotchYoke::startPusher(bool single) {

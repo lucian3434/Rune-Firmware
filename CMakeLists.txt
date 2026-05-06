@@ -56,6 +56,8 @@ add_executable(${PROJECT_NAME}
 
         "src/components/fire control/firemode.cpp"
         "src/components/fire control/semi.cpp"
+        "src/components/fire control/burst.cpp"
+        "src/components/fire control/full.cpp"
         )
 
 # tell compiler to suppress ABI update notices

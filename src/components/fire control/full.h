@@ -3,11 +3,11 @@
 #include "firemode.h"
 
 namespace Rune {
-    class FireModeSemi : public FireModeGeneric {
+    class FireModeFull : public FireModeGeneric {
         private:
             bool queued;
         public:
-            FireModeSemi();
+            FireModeFull();
             void tick(States* states, PusherGeneric* pusher) override;
     };
 }

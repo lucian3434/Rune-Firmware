@@ -16,12 +16,12 @@ namespace Rune {
             };
 
         protected:
-            FireModeGeneric** firemode;
+            FireModeGeneric*** firemode;
             pusherState_t pusherState;
 
         public:
             PusherGeneric(); // not for actual use, just to satisfy the compiler
-            PusherGeneric(FireModeGeneric** firemode_curr);
+            PusherGeneric(FireModeGeneric*** firemode_curr);
             virtual ~PusherGeneric() = default;
             virtual bool init();
             virtual void pusherTick() = 0;

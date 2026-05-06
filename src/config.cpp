@@ -48,9 +48,9 @@ bool Rune::Config::load() {
     }
 
     // load fire modes
-    fire_modes.push_back(FM_SEMI);
+    //fire_modes.push_back(FM_SEMI);
     //fire_modes.push_back(FM_BURST);
-    // fire_modes.push_back(FM_FULL);
+    fire_modes.push_back(FM_FULL);
   }
 
   return successfullyLoaded;

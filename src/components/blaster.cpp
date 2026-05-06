@@ -53,11 +53,17 @@ bool Rune::Blaster::init(HW::Board* board) {
       case Rune::Config::FM_SEMI:
         fireModes.push_back(new Rune::FireModeSemi());
         break;
-      
+      case Rune::Config::FM_BURST:
+        fireModes.push_back(new Rune::FireModeBurst(3, true));
+        break;
+      case Rune::Config::FM_FULL:
+        fireModes.push_back(new Rune::FireModeFull());
+        break;
       default:
         break;
     }
   }
+  //currFireMode = &fireModes[0];
 
   // initialize pusher
   switch (cfg->pusher_type) {
@@ -79,7 +85,7 @@ bool Rune::Blaster::init(HW::Board* board) {
 
       // create pusher object
       if (board->pusher_driver == HW::DRV824XS) {
-        pusher = new Rune::PusherScotchYoke(currFireMode, cycle, board->pusher_module);
+        pusher = new Rune::PusherScotchYoke(&currFireMode, cycle, board->pusher_module);
       }
       else {
         uprintf("ERROR: Non-DRV824xS pusher not currently supported\r\n");
