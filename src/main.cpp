@@ -21,7 +21,7 @@
 
 void init();
 bool systemControlLoop(repeating_timer_t *rt);
-//bool motorControlLoop(repeating_timer_t *rt);
+bool motorControlLoop(repeating_timer_t *rt);
 //void updateWheelState(wheelState_t newState);
 
 /*
@@ -74,6 +74,10 @@ struct firemode_t firemode_three;
 // loop variables for main logic loop
 int32_t mainLoopFrequency = 1000; // main logic loop update frequency in hz
 int32_t mainLoopTimeus = 1e6 / mainLoopFrequency; // main logic loop time in us
+
+// loop variables for motor control loop
+int32_t pidFrequency = 4000; // update frequency in hz
+int32_t motorLoopTimeus = 1e6 / pidFrequency; // motor control loop time in us
 
 Rune::Config config = Rune::Config();
 Rune::Blaster blaster = Rune::Blaster(&config);
@@ -182,7 +186,7 @@ int main() {
 
   // register motor control loop function to run at the specified pid frequency
   repeating_timer_t motorControlLoopTimer;
-  bool timerAdded = true;//add_repeating_timer_us(-loopTimeus, motorControlLoop, NULL, &motorControlLoopTimer);
+  bool timerAdded = add_repeating_timer_us(-motorLoopTimeus, motorControlLoop, NULL, &motorControlLoopTimer);
   if (timerAdded) {
     uprintf("PID loop registered!\r\n");
     bootStatus |= 0x4; // motor control loop ready
@@ -236,14 +240,12 @@ bool systemControlLoop(repeating_timer_t *rt) {
   }
 
   // update fire mode status
-  
   // set new fire mode if necessary
   uint8_t selectorPos = 0;
   for (uint8_t i = 0; i < 0; i++) {
     //selectorPos |= /*something*/.isPressed() << i;
   }
   blaster.currFireMode = &(blaster.fireModes[selectorPos]);
-
   (*blaster.currFireMode)->tick(&blaster.logicLines, blaster.pusher);
 
   // update pusher status
@@ -259,7 +261,7 @@ bool motorControlLoop(repeating_timer_t *rt) {
 
   
 
-
+  blaster.logicLines.wheelsAtSpeed = atTarget;
   return true;
 }
 

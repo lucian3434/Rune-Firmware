@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include <atomic>
 
-#define LOG_MSG_LENGTH 64
+#define LOG_MSG_LENGTH 128
 #define LOG_CACHE_SIZE 128 // only supports powers of 2
 
 typedef struct {

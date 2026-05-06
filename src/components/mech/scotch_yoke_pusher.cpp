@@ -51,7 +51,7 @@ void Rune::PusherScotchYoke::startPusher(bool single) {
   }
 }
 
-int64_t Rune::PusherScotchYoke::pusherSafetyCallback(alarm_id_t id, __unused void* userData) {
+int64_t Rune::PusherScotchYoke::pusherSafetyCallback(alarm_id_t id, void* userData) {
   Rune::PusherScotchYoke* self = static_cast<Rune::PusherScotchYoke*>(userData);
   if (self->pusherState == RUNNING) {
     self->pusherState = STOPPED;

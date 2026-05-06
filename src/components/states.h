@@ -30,7 +30,7 @@ namespace Rune {
         } wheelState_t;
         
         wheelState_t wheelState;
-        bool wheelsAtSpeed;
+        volatile bool wheelsAtSpeed;
         VirtualLogicLine virtRev;
         VirtualLogicLine virtTrig;
         // more can be added as necessary
