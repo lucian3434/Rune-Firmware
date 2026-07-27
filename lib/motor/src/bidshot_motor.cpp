@@ -11,7 +11,7 @@ static const uint32_t GCRdecode[32] {
 std::unordered_map<uint, Motor::BIDSHOTMotor*> Motor::BIDSHOTMotor::instanceMap;
 uint Motor::BIDSHOTMotor::programOffset;
 
-Motor::BIDSHOTMotor::BIDSHOTMotor(uint8_t gpioPin, PIO pio, DSBitrate dshotBitrate, uint8_t poles) {
+Motor::BIDSHOTMotor::BIDSHOTMotor(uint8_t gpioPin, PIO pio, BDSBitrate dshotBitrate, uint8_t poles) {
     pin = gpioPin;
     pioInstance = pio;
     bitrate = dshotBitrate;

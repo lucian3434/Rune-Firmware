@@ -13,6 +13,11 @@
 #include "mech/solenoid_pusher.h"
 #include "mech/scotch_yoke_pusher.h"
 
+#include "motor/motor.h"
+#include "motor/bidshot_motor.h"
+
+#include "../pid.h"
+
 namespace Rune {
     // this class manages the hardware and state of the blaster
     class Blaster {
@@ -25,6 +30,9 @@ namespace Rune {
         FireModeGeneric** currFireMode;
         std::vector<Debounce::Button*> selectors;
         std::vector<Rune::FireModeGeneric*> fireModes;
+        std::vector<Motor::Motor*> motors;
+        std::vector<PID*> motorPIDs;
+        uint8_t fpsCap;
 
         Blaster(Rune::Config* config);
         bool init(HW::Board* board);

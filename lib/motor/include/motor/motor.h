@@ -8,6 +8,7 @@ namespace Motor {
         protected:
             uint8_t pin;
         public:
+            Motor() = default;
             Motor(uint8_t gpioPin);
             virtual void init(); // initialize motor
             virtual void setThrottle(float throttle); // set throttle to a fractional value from 0 to 1 (inclusive)

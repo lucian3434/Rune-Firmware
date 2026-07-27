@@ -47,12 +47,12 @@ add_executable(${PROJECT_NAME}
         src/pid.cpp
         src/config.cpp
         src/util.cpp
-        #src/peripherals.cpp
         src/components/blaster.cpp
         src/components/board_def.cpp
         src/components/states.cpp
         src/components/mech/pusher.cpp
         src/components/mech/scotch_yoke_pusher.cpp
+        src/components/mech/solenoid_pusher.cpp
 
         "src/components/fire control/firemode.cpp"
         "src/components/fire control/semi.cpp"

@@ -2,18 +2,18 @@
 #include "./../mech/pusher.h"
 
 Rune::FireModeSemi::FireModeSemi() {
-    queued = false;
+    state = IDLE;
 }
 
 void Rune::FireModeSemi::tick(States* states, PusherGeneric* pusher) {
     // queue a shot if the trigger is pressed while we are revving
     if (states->virtTrig.isRisingEdge() && states->virtRev.getState()) {
-        queued = true;
+        state = FIRING;
     }
 
-    if (queued) {
+    if (state == FIRING) {
         if (states->wheelsAtSpeed && (pusher->getPusherState() == pusher->STOPPED)) {
-            queued = false;
+            state = IDLE;
             pusher->startPusher(true);
         }
         states->virtRev.forceHigh();

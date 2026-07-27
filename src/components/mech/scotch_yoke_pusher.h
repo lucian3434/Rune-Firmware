@@ -16,7 +16,6 @@ namespace Rune {
             };
             DRV::DRV824xS* driver;
             Debounce::Button* cycle;
-            Rune::PusherGeneric::pusherState_t pusherState;
             Rune::PusherScotchYoke::pusherSafetyTimeout_t psTimeout;
             alarm_id_t pusherSafetyAlarmId;
             bool stopOnCycle;
@@ -30,6 +29,6 @@ namespace Rune {
             void startPusher(bool single = false) override;
             void stopPusher() override;
 
-            static int64_t pusherSafetyCallback(alarm_id_t id, __unused void* userData);
+            static int64_t pusherSafetyCallback(alarm_id_t id, void* userData);
     };
 }

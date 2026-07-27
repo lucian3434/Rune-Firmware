@@ -7,8 +7,11 @@ Rune::Blaster::Blaster(Rune::Config* config) {
   switches = {};
   selectors = {};
   fireModes = {};
+  motors = {};
+  motorPIDs = {};
   currFireMode = nullptr;
   pusher = nullptr;
+  fpsCap = 0;
 }
 
 bool Rune::Blaster::init(HW::Board* board) {
@@ -84,7 +87,7 @@ bool Rune::Blaster::init(HW::Board* board) {
 
       // check to make sure that we actually found one
       if (cycle == nullptr) {
-        uprintf("ERR: No cycle switch configured for scotch yoke pusher\r\n");
+        uprintf("ERROR: No cycle switch configured for scotch yoke pusher\r\n");
         return false;
       }
 
@@ -102,17 +105,55 @@ bool Rune::Blaster::init(HW::Board* board) {
       }
       break;
     }
-    /*
-    case Rune::Config::PUSHER_BASIC_SOLENOID:
-      Rune::SolenoidPusher p = Rune::SolenoidPusher();
-      pusher = &p;
-      break; //*/
+    
+    case Rune::Config::PUSHER_BASIC_SOLENOID: {
+      if (board->pusher_driver == HW::DRV824XS) {
+        pusher = new Rune::SolenoidPusher(&currFireMode, cfg, board->pusher_module);
+      }
+      else {
+        uprintf("ERROR: Non-DRV824xS pusher not currently supported\r\n");
+        uprintf(" - while attempting to initialize pusher object in blaster.cpp\r\n");
+        while (true) {
+          uprintf("ERR:!DRV\r\n");
+          sleep_ms(100);
+        }; // loop forever so they know something is Wrong
+      }
+      break;
+    }
     default:
       break;
   }
   if (pusher != nullptr) {
     pusher->init();
   }
+
+  // initialize motors
+  motors.reserve(cfg->motors.size());
+  motorPIDs.reserve(cfg->motors.size());
+  for (uint8_t i = 0; i < cfg->motors.size(); i++) {
+    motorPIDs.push_back(new PID);
+    switch (cfg->motors[i].type) {
+      case Rune::Config::MOTOR_BIDSHOT:
+        motors.push_back(new Motor::BIDSHOTMotor(board->escs[cfg->motors[i].channel], pio0, Motor::BDSBitrate::DSHOT600, cfg->motors[i].poles));
+        initPID(motorPIDs[i], cfg->motors[i].pidConfig.p, cfg->motors[i].pidConfig.i, cfg->motors[i].pidConfig.d);
+        uprintf("Motor %u -> BIDSHOT on channel %u\r\n", i + 1, cfg->motors[i].channel);
+        break;
+      default:
+        uprintf("ERR: Unsupported motor type %u on channel %u\r\n", cfg->motors[i].type, cfg->motors[i].channel);
+        return false;
+    }
+    motors[i]->init();
+  }
+
+  // get current fps cap from selector position if using a slide selector
+  fpsCap = 0;
+  updateIO();
+  if (cfg->selector_type == Rune::Config::SELECTOR_SLIDE) {
+    for (uint8_t i = 0; i < selectors.size(); i++) {
+        fpsCap |= selectors[i]->isPressed() << i;
+      }
+  }
+  uprintf("Using FPS cap %u\r\n", fpsCap);
 
   return true; // successful initialization
 }

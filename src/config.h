@@ -63,11 +63,19 @@ namespace Rune {
 
       std::vector<IOSwitchConfig> io_switches;
       selectorType_t selector_type;
-      std::vector<MotorConfig> motors;
+
       HW::boardVersion_t board_name;
+
       pusherType_t pusher_type;
+      uint32_t solOnTimems;
+      uint32_t solOffTimems;
+
+      std::vector<MotorConfig> motors;
       std::vector<std::vector<uint32_t>> motor_rpm_targets; // [cap][motor]
       std::vector<fireMode_t> fire_modes;
+      uint16_t rampDownTimems;
+      uint32_t idletimems;
+      std::vector<uint32_t> idle_rpm_targets; // [motor]
 
       bool load();
       Config();

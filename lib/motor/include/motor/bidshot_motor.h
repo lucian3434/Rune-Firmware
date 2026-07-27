@@ -8,19 +8,19 @@
 #include <unordered_map>
 
 namespace Motor {
-    enum DSBitrate {
+    enum BDSBitrate {
         // DSHOT150 not in bidir spec
         DSHOT300  = 300000,
         DSHOT600  = 600000,
         DSHOT1200 = 1200000
     };
 
-    class BIDSHOTMotor {
+    class BIDSHOTMotor: public Motor {
         private:
             uint8_t pin;
             PIO pioInstance;
             uint sm;
-            DSBitrate bitrate;
+            BDSBitrate bitrate;
             bool requestTelem;
             static uint programOffset;
             uint8_t numPoles;
@@ -42,7 +42,7 @@ namespace Motor {
             };
 
         public:
-            BIDSHOTMotor(uint8_t gpioPin, PIO pio, DSBitrate dshotBitrate, uint8_t poles);
+            BIDSHOTMotor(uint8_t gpioPin, PIO pio, BDSBitrate bidshotBitrate, uint8_t poles);
             void init(); // initialize motor
             void setThrottle(float throttle); // set throttle to a fractional value from 0 to 1 (inclusive)
             void requestTelemetry(); // request KISS telemetry after the next packet

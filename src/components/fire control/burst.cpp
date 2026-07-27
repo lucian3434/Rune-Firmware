@@ -2,6 +2,7 @@
 #include "./../mech/pusher.h"
 
 Rune::FireModeBurst::FireModeBurst(uint8_t burstSize, bool allowPartial) {
+    state = IDLE;
     queued = 0;
     shotsFired = 0;
     cutoff = allowPartial;
@@ -12,6 +13,7 @@ void Rune::FireModeBurst::tick(States* states, PusherGeneric* pusher) {
     if (states->virtTrig.isRisingEdge() && states->virtRev.getState()) {
         queued = size;
         shotsFired = 0;
+        state = FIRING;
     }
 
     if (cutoff && states->virtTrig.isFallingEdge()) {
@@ -26,6 +28,7 @@ void Rune::FireModeBurst::tick(States* states, PusherGeneric* pusher) {
         states->virtRev.forceHigh();
     }
     else {
+        state = IDLE;
         pusher->stopPusher();
     }
 }

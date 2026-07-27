@@ -8,6 +8,7 @@ Rune::States::States() {
 }
 
 Rune::VirtualLogicLine::VirtualLogicLine() {
+    state = 0;
 }
 
 void Rune::VirtualLogicLine::attach(Debounce::Button* ioswitch) {

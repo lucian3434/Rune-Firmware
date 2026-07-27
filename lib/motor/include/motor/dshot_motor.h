@@ -12,7 +12,7 @@ namespace Motor {
         DSHOT1200 = 1200000
     };
 
-    class DSHOTMotor/*: public Motor*/ { // ill figure out the constructor stuff later
+    class DSHOTMotor: public Motor {
         private:
             uint8_t pin;
             PIO pioInstance;

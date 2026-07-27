@@ -23,10 +23,10 @@ namespace Rune {
     class States {
         public:
         typedef enum {
-            WHEEL_STOPPED,
-            WHEEL_ACCELERATING,
-            WHEEL_SLOWING,
-            WHEEL_IDLE
+            WHEEL_STOPPED = 0,
+            WHEEL_ACCELERATING = 1,
+            WHEEL_SLOWING = 2,
+            WHEEL_IDLE = 3
         } wheelState_t;
         
         wheelState_t wheelState;
