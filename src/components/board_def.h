@@ -8,11 +8,11 @@ namespace HW {
     const uint8_t NO_ASSIGNMENT = 0xff;
 
     enum adcFunction_t {
-        NC,
-        IO1,
-        DRV_IPROPI,
-        BATT_SENSE,
-        ESC_CURR_SENSE
+        NC = 0,
+        IO1 = 1,
+        DRV_IPROPI = 2,
+        BATT_SENSE = 3,
+        ESC_CURR_SENSE = 4
     };
 
     enum boardVersion_t {
@@ -49,6 +49,8 @@ namespace HW {
         uint8_t ws2812_data;
         
         adcFunction_t adc[4];
+
+        float batteryVoltageMultiplier;
     };
 
     extern Board rune_v0_2;

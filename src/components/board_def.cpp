@@ -35,7 +35,8 @@ HW::Board HW::rune_v0_2 = {
     .DRV_cs = 21,
     .DRV_sclk = 22,
     .ws2812_data = 24,
-    .adc = {HW::BATT_SENSE, HW::ESC_CURR_SENSE, HW::DRV_IPROPI, HW::NC}
+    .adc = {HW::BATT_SENSE, HW::ESC_CURR_SENSE, HW::DRV_IPROPI, HW::NC},
+    .batteryVoltageMultiplier = 0.0088645
 };
 
 HW::Board HW::rune_v0_3 = {
@@ -54,7 +55,8 @@ HW::Board HW::rune_v0_3 = {
     .DRV_cs = 21,
     .DRV_sclk = 22,
     .ws2812_data = 24,
-    .adc = {HW::IO1, HW::DRV_IPROPI, HW::BATT_SENSE, HW::ESC_CURR_SENSE}
+    .adc = {HW::IO1, HW::DRV_IPROPI, HW::BATT_SENSE, HW::ESC_CURR_SENSE},
+    .batteryVoltageMultiplier = 0.0088645
 };
 
 HW::Board* HW::boards[] = {

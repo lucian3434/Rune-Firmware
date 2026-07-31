@@ -7,12 +7,8 @@
 
 #include "led/ws2812.h"
 
-/*
-#include "pid.h"
-*/
 
-
-//#define DEVMODE
+#define DEVMODE
 #ifdef DEVMODE
 // requires a character to be sent over serial before starting
 #warning "Warning: Dev Mode enabled"
@@ -21,25 +17,6 @@
 void init();
 bool systemControlLoop(repeating_timer_t *rt);
 bool motorControlLoop(repeating_timer_t *rt);
-
-/*
-// helper variables for PID control
-// these pid values work for the most part. not the greatest, but better than nothing lol
-PID mPID[NUM_MOTORS] {};
-float pid_p = 0.00025;
-float pid_i = 0.0000001;
-float pid_d = -0.001;
-float throttlePoint[NUM_MOTORS]; // where requested throttle gets stored
-float steadyThrottle[NUM_MOTORS]; // last known good throttle, used for ramp down
-uint32_t rampDownTime = 500 * 1000; // motor ramp down time in us
-int32_t pidFrequency = 4000; // update frequency in hz
-int32_t loopTimeus = 1e6 / pidFrequency; // motor control loop time in us
-uint32_t rpmLast[NUM_MOTORS] = {0};
-
-// loop variables for main logic loop
-int32_t mainLoopFrequency = 1000; // main logic loop update frequency in hz
-int32_t mainLoopTimeus = 1e6 / mainLoopFrequency; // main logic loop time in us
-*/
 
 // rpm logging
 //#define USE_RPM_LOGGING
@@ -282,23 +259,6 @@ bool motorControlLoop(repeating_timer_t *rt) {
       if (blaster.logicLines.wheelState == Rune::States::WHEEL_SLOWING) {
         loggedSpinup = false;
 
-        /*
-        // check if a state change is required
-        uint32_t msSinceLastUpdate = to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(motorStateLastUpdate);
-        if (msSinceLastUpdate > config.idletimems) {
-          if (config.idletimems > 0) {
-            blaster.logicLines.wheelState = Rune::States::WHEEL_IDLE;
-            ulogf("MotorState SLOWING -> IDLE\r\n");
-          }
-          else {
-            blaster.logicLines.wheelState = Rune::States::WHEEL_STOPPED;
-            ulogf("MotorState SLOWING -> STOPPED\r\n");
-            ulogf("");
-          }
-          motorStateLastUpdate = get_absolute_time();
-        }
-        */
-
         // calculate new throttle
         int64_t timeUntilEndOfRamp = (int64_t)config.rampDownTimems - (int64_t)msSinceLastUpdate;
         if (timeUntilEndOfRamp < 0) timeUntilEndOfRamp = 0;
@@ -372,151 +332,3 @@ bool motorControlLoop(repeating_timer_t *rt) {
   }
   return true;
 }
-
-/*
-
-// this function runs on a timer, and sends commands to the motors
-bool motorControlLoop(repeating_timer_t *rt) {
-  uint8_t atTarget = 0; // track if each motor is up to speed, and assume they arent
-  for (uint8_t i = 0; i < NUM_MOTORS; i++) {
-    // get rpm from motor
-    uint32_t rpm = motors[i].readTelemetry();
-    if (((rpm & 0xff000000) == 0xff000000) && (wheelState != IDLE)) {
-      ulogf("M%u: Error 0x%x\r\n", i + 1, rpm);
-      rpm = rpmLast[i]; // for now, feed in old data
-    }
-    rpmLast[i] = rpm;
-
-    if (wheelState == SLOWING) {
-      // keep updating pid in case we need to start accelerating again
-      int32_t rpmOffset = (int32_t)((firemode_curr->targetRPM[i] / (float)rampDownTime) * absolute_time_diff_us(lastWheelStateUpdate, get_absolute_time()));
-      uint32_t targetRPM;
-      if (rpmOffset > firemode_curr->targetRPM[i]) {
-        targetRPM = 0;
-      }
-      else {
-        targetRPM = firemode_curr->targetRPM[i] - rpmOffset;
-      }
-      throttlePoint[i] = updatePID(&mPID[i], targetRPM, rpm);
-    }
-    else if (wheelState == ACCELERATING) {
-      throttlePoint[i] = updatePID(&mPID[i], firemode_curr->targetRPM[i], rpm);
-      if (rpm > firemode_curr->targetRPM[i] - 500) {
-        atTarget |= 1 << i;
-      } // set bit if around target rpm
-    }
-    else if (wheelState == STEADY) {
-      // same as accelerating, just dont need to update atTarget
-      throttlePoint[i] = updatePID(&mPID[i], firemode_curr->targetRPM[i], rpm);
-    }
-    else { // wheelState == IDLE 
-      throttlePoint[i] = 0.0;
-    }
-
-    // if we have rpm logging enabled, add the most recent value to the cache
-    #ifdef USE_RPM_LOGGING
-    if (cacheIndex < rpmLogLength) {
-      rpmCache[cacheIndex][i] = rpm;
-      if (throttlePoint[i] > 1.0) throttlePoint[i] = 1.0; // normally this gets dealt with in the motor library, but i want to show it capped when logged
-      throttleCache[cacheIndex][i] = (uint16_t)(throttlePoint[i] * 1999);
-    }
-    #endif
-    
-    // now that we've calculated the throttles, send them to the motors
-    motors[i].setThrottle(throttlePoint[i]);
-  }
-
-  #ifdef USE_RPM_LOGGING
-  // increment cache index if we still need to take data
-  if (cacheIndex < rpmLogLength) cacheIndex++;
-  #endif
-  
-  // now for more general checks
-  if (wheelState == ACCELERATING) {
-    // if all the motors are up to speed, set state variable accordingly
-    // note that overshoot isn't checked; tune your PID properly!
-    if (atTarget == ((1 << NUM_MOTORS) - 1)) updateWheelState(STEADY);
-    // or, if its been more than 200ms, assume something is wrong and switch state anyway
-    else if (absolute_time_diff_us(lastWheelStateUpdate, get_absolute_time()) > 200000) {
-      ulogf("WARN: Spinup took >200ms\r\n");
-      updateWheelState(STEADY);
-    }
-  }
-  else if (wheelState == SLOWING) {
-    // switch state to idle if we have been slowing down for longer than rampDownTime; throttle should be 0 by now
-    if (absolute_time_diff_us(lastWheelStateUpdate, get_absolute_time()) >= rampDownTime) updateWheelState(IDLE);
-  }
-
-  return true;
-}
-
-// gracefully handle changes between states
-void updateWheelState(wheelState_t newState) {
-  if (newState == IDLE) {
-    // reset pid numbers when returning to idle
-    for (uint8_t i = 0; i < NUM_MOTORS; i++) {
-      zeroPID(&mPID[i]);
-    }
-  }
-  else if (newState == STEADY) {
-    ulogf("INFO: trigger delay: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(lastWheelStateUpdate));
-    pusher.updatePusherState(Rune::PusherGeneric::pusherState_t::RUNNING); // start the pusher once we are at steady state
-  }
-  else if (newState == SLOWING) {
-    // save the last throttle values so we know where to slow down from
-    for (uint8_t i = 0; i < NUM_MOTORS; i++) {
-      steadyThrottle[i] = throttlePoint[i]; // TODO: write better code for this
-    }
-  }
-
-  // set the new state once everything has been handled
-  lastWheelStateUpdate = get_absolute_time();
-  wheelState = newState;
-}
-
-// general control over the system. reads input from switches and runs control logic
-bool systemControlLoop(repeating_timer_t *rt) {
-  // update button states
-  trig.update();
-  cycle.update();
-  sel1.update();
-  sel2.update();
-
-  // update fire mode from selector
-  if (sel1.isPressed()) { // forward position
-    firemode_curr = &firemode_one;
-  }
-  else if (sel2.isPressed()) { // backward position
-    firemode_curr = &firemode_three;
-  }
-  else { // middle position
-    firemode_curr = &firemode_two;
-  }
-
-  // start the firing sequence if the trigger was just pressed
-  if (trig.isRisingEdge()) {
-    ulogf("INFO: Trigger pressed\r\n");
-
-    #ifdef USE_RPM_LOGGING
-    cacheIndex = 0; // reset cache index to start logging
-    #endif
-
-    pusher.triggerRisingEdge();
-
-    // start firing
-    if ((firemode_curr->numShots > 0 && wheelState != ACCELERATING)) {
-      updateWheelState(ACCELERATING);
-    }
-  }
-
-  // when the trigger is released, start the pusher safety timeout
-  if (trig.isFallingEdge()) {
-    pusher.triggerFallingEdge();
-  }
-
-  pusher.pusherTick();
-
-  return true; // repeat timer
-}
-
-*/

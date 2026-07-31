@@ -12,11 +12,36 @@ Rune::Blaster::Blaster(Rune::Config* config) {
   currFireMode = nullptr;
   pusher = nullptr;
   fpsCap = 0;
+  adc = ADC::ADC();
 }
 
 bool Rune::Blaster::init(HW::Board* board) {
   // initialize hardware then build software layers on top
+
   // initialize io
+  
+  // adc
+  adc.init();
+  // initialize a few channels by default
+  uint8_t adcSlice = getADCSlice(board, HW::BATT_SENSE);
+  if (adcSlice != HW::NO_ASSIGNMENT) {
+    adc.addPin(adcSlice, HW::BATT_SENSE);
+    uprintf("ADC channel %u -> BATT_SENSE\r\n", adcSlice);
+  }
+  adcSlice = getADCSlice(board, HW::DRV_IPROPI);
+  if (adcSlice != HW::NO_ASSIGNMENT) {
+    adc.addPin(adcSlice, HW::DRV_IPROPI);
+    uprintf("ADC channel %u -> DRV_IPROPI\r\n", adcSlice);
+  }
+  adcSlice = getADCSlice(board, HW::ESC_CURR_SENSE);
+  if (adcSlice != HW::NO_ASSIGNMENT) {
+    adc.addPin(adcSlice, HW::ESC_CURR_SENSE);
+    uprintf("ADC channel %u -> ESC_CURR_SENSE\r\n", adcSlice);
+  }
+  // anything on IO can be added later if needed
+
+
+  // whatever switches are configured
   switches.reserve(cfg->io_switches.size());
 
   for (uint8_t i = 0; i < cfg->io_switches.size(); i++) {
@@ -154,6 +179,8 @@ bool Rune::Blaster::init(HW::Board* board) {
       }
   }
   uprintf("Using FPS cap %u\r\n", fpsCap);
+
+  uprintf("Current battery voltage: %.2fV\r\n", adc.readPin(HW::BATT_SENSE) * board->batteryVoltageMultiplier);
 
   return true; // successful initialization
 }

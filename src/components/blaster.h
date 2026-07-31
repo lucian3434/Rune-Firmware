@@ -16,6 +16,8 @@
 #include "motor/motor.h"
 #include "motor/bidshot_motor.h"
 
+#include "adc/adc.h"
+
 #include "../pid.h"
 
 namespace Rune {
@@ -24,6 +26,7 @@ namespace Rune {
         private:
         std::vector<Debounce::Button> switches;
         public:
+        ADC::ADC adc;
         Rune::States logicLines;
         Rune::Config* cfg;
         PusherGeneric* pusher;

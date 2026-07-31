@@ -6,12 +6,12 @@
 namespace ADC {
     class ADC {
         protected:
-            uint8_t pinmask;
-            uint16_t* buf[5];
-            uint16_t buf_depths[5];
+            uint8_t channels[5] = {0};
         public:
             ADC();
             void init(); 
-            void addPin(uint8_t gpio, uint16_t buffer_depth);
+            void addPin(uint8_t channel, uint8_t channelName);
+            void removePin(uint8_t channelName);
+            uint16_t readPin(uint8_t channelName);
     };
 }
