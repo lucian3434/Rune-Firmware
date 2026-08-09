@@ -8,8 +8,9 @@ Reference firmware for the Rune brushless blaster control board. Currently under
 - [ ] Make a better attempt to get everything set up before saying boot was successful (and add a safety flag so that most code doesn't run until after boot is complete)
 - [ ] Flash read/write for configuration
 - [ ] Getting started guide
-- [ ] Current sensing closed loop solenoid code (possibly implemented)
+- [x] Current sensing closed loop solenoid code
 - [ ] Voltage sensing closed loop solenoid code (lower priority)
+- [ ] Inductance estimating closed loop solenoid code (reevaluate if possible on Rune?)
 - [ ] Motor PID autotune
 - [ ] Screen support
 - [ ] And then menu support
@@ -17,7 +18,7 @@ Reference firmware for the Rune brushless blaster control board. Currently under
 - [ ] Update RPM logging code to current standard
 - [ ] Support for pushbutton fire mode selector
 - [ ] ESC passthrough mode for programming/updating
-- [ ] More fire modes
+- [ ] More fire modes + revise current for progressive trigger setup
 
 
 ## Features
