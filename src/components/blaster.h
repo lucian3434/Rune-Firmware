@@ -12,6 +12,7 @@
 #include "mech/pusher.h"
 #include "mech/solenoid_pusher.h"
 #include "mech/scotch_yoke_pusher.h"
+#include "mech/current_sense_solenoid_pusher.h"
 
 #include "motor/motor.h"
 #include "motor/bidshot_motor.h"

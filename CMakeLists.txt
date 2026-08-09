@@ -35,7 +35,6 @@ pico_sdk_init()
 
 add_subdirectory(lib/debounce)
 add_subdirectory(lib/motor)
-add_subdirectory(lib/solenoid)
 add_subdirectory(lib/led)
 add_subdirectory(lib/adc)
 add_subdirectory(lib/drv)
@@ -53,6 +52,7 @@ add_executable(${PROJECT_NAME}
         src/components/mech/pusher.cpp
         src/components/mech/scotch_yoke_pusher.cpp
         src/components/mech/solenoid_pusher.cpp
+        src/components/mech/current_sense_solenoid_pusher.cpp
 
         "src/components/fire control/firemode.cpp"
         "src/components/fire control/semi.cpp"
@@ -75,7 +75,6 @@ target_link_libraries(${PROJECT_NAME}
         pico_stdlib
         debounce
         motor
-        solenoid
         led
         adc
         drv

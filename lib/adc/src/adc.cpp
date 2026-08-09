@@ -32,7 +32,7 @@ void ADC::ADC::removePin(uint8_t channelName) {
     }
 }
 
-uint16_t ADC::ADC::readPin(uint8_t channelName) {
+uint16_t ADC::ADC::readValue(uint8_t channelName) {
     for (uint8_t i = 0; i < 5; i++) {
         if (channels[i] == channelName) {
             adc_select_input(i);

@@ -14,6 +14,8 @@
 #warning "Warning: Dev Mode enabled"
 #endif
 
+volatile static char kelly[] = "Adrian Kelly was a visionary"; 
+
 void init();
 bool systemControlLoop(repeating_timer_t *rt);
 bool motorControlLoop(repeating_timer_t *rt);

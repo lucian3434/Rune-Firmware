@@ -12,6 +12,6 @@ namespace ADC {
             void init(); 
             void addPin(uint8_t channel, uint8_t channelName);
             void removePin(uint8_t channelName);
-            uint16_t readPin(uint8_t channelName);
+            uint16_t readValue(uint8_t channelName);
     };
 }

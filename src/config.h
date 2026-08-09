@@ -20,7 +20,8 @@ namespace Rune {
       enum pusherType_t {
         NO_PUSHER = 0,
         PUSHER_SCOTCH_YOKE = 1,
-        PUSHER_BASIC_SOLENOID = 2
+        PUSHER_BASIC_SOLENOID = 2,
+        PUSHER_CURRENT_SENSE_SOLENOID = 3
       };
 
       enum selectorType_t {

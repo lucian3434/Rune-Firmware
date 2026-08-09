@@ -145,6 +145,22 @@ bool Rune::Blaster::init(HW::Board* board) {
       }
       break;
     }
+
+    case Rune::Config::PUSHER_CURRENT_SENSE_SOLENOID: {
+      if (board->pusher_driver == HW::DRV824XS) {
+        pusher = new Rune::PusherSolenoidCurrSensing(&currFireMode, cfg, &adc, board->pusher_module);
+      }
+      else {
+        uprintf("ERROR: Non-DRV824xS pusher not currently supported\r\n");
+        uprintf(" - while attempting to initialize pusher object in blaster.cpp\r\n");
+        while (true) {
+          uprintf("ERR:!DRV\r\n");
+          sleep_ms(100);
+        }; // loop forever so they know something is Wrong
+      }
+      break;
+    }
+    
     default:
       break;
   }
@@ -180,7 +196,7 @@ bool Rune::Blaster::init(HW::Board* board) {
   }
   uprintf("Using FPS cap %u\r\n", fpsCap);
 
-  uprintf("Current battery voltage: %.2fV\r\n", adc.readPin(HW::BATT_SENSE) * board->batteryVoltageMultiplier);
+  uprintf("Current battery voltage: %.2fV\r\n", adc.readValue(HW::BATT_SENSE) * board->batteryVoltageMultiplier);
 
   return true; // successful initialization
 }

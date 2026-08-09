@@ -37,8 +37,8 @@ bool Rune::Config::load() {
 
     // load default pusher configuration
     //pusher_type = PUSHER_SCOTCH_YOKE;
-    pusher_type = PUSHER_BASIC_SOLENOID;
-    solOnTimems = 25; // typical safe settings
+    pusher_type = PUSHER_CURRENT_SENSE_SOLENOID;
+    solOnTimems = 25; // typical safe settings for 4s neutron with basic spring
     solOffTimems = 65;
 
     // load default motor configuration
