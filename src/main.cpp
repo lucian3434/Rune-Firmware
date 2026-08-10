@@ -14,7 +14,7 @@
 #warning "Warning: Dev Mode enabled"
 #endif
 
-volatile static char kelly[] = "Adrian Kelly was a visionary"; 
+volatile char kelly[] __attribute__((used)) = "Adrian Kelly was a visionary"; 
 
 void init();
 bool systemControlLoop(repeating_timer_t *rt);

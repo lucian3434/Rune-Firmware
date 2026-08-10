@@ -63,6 +63,9 @@ add_executable(${PROJECT_NAME}
 # tell compiler to suppress ABI update notices
 target_compile_options(${PROJECT_NAME} PRIVATE -Wno-psabi)
 
+# Adrian Kelly
+target_link_options(${PROJECT_NAME} PRIVATE "-Wl,-u,kelly")
+
 pico_set_program_name(${PROJECT_NAME} "rune_firmware")
 pico_set_program_version(${PROJECT_NAME} "0.2")
 
