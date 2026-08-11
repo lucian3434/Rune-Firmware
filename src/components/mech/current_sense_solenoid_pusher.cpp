@@ -49,7 +49,7 @@ void Rune::PusherSolenoidCurrSensing::pusherTick() {
   if (solenoidState == EXTENDING) {
     driver->drive();
     uint32_t sample = adcm->readValue(HW::DRV_IPROPI);
-    ulogf("%u\r\n", sample);
+    //ulogf("%u\r\n", sample);
     if (sample > max) {
       max = sample; // get peak current
       min = (max * 19) / 20; // prevent false detection by forcing a minimum below 95% of max current
@@ -60,7 +60,7 @@ void Rune::PusherSolenoidCurrSensing::pusherTick() {
     }
     if (minReached && map(sample, min, max, 0, 100) > 10) { // if current has dipped and then recovered 10% of dip
       driver->coast(); // stop driving the solenoid
-      ulogf("INFO: Solenoid extension time: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(solenoidLastStateChange));
+      ulogf("[INFO] Solenoid extension time: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(solenoidLastStateChange));
       solenoidState = RETRACTING; // regular retraction cycle
       solenoidNextStateChange = delayed_by_ms(solenoidLastStateChange, cfg->solOffTimems);
       solenoidLastStateChange = get_absolute_time();

@@ -46,6 +46,8 @@ add_executable(${PROJECT_NAME}
         src/pid.cpp
         src/config.cpp
         src/util.cpp
+        src/api.cpp
+        
         src/components/blaster.cpp
         src/components/board_def.cpp
         src/components/states.cpp

@@ -2,13 +2,14 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "api.h"
 #include "components/blaster.h"
 #include "components/board_def.h"
 
 #include "led/ws2812.h"
 
 
-#define DEVMODE
+//#define DEVMODE
 #ifdef DEVMODE
 // requires a character to be sent over serial before starting
 #warning "Warning: Dev Mode enabled"
@@ -86,7 +87,7 @@ int main() {
   if (board->pusher_driver == HW::DRV824XS) {
     uprintf("Waking DRV...");
     while (!board->pusher_module->wake()) {
-      uprintf("\r\nFailed to wake DRV. Retrying...");
+      uprintf("\r\n[ERR] Failed to wake DRV. Retrying...");
       sleep_ms(100);
     }
     uprintf("COMPLETE\r\n");
@@ -97,11 +98,11 @@ int main() {
   repeating_timer_t mainLogicLoopTimer;
   bool logicLoopAdded = add_repeating_timer_us(-mainLoopTimeus, systemControlLoop, NULL, &mainLogicLoopTimer);
   if (logicLoopAdded) {
-    uprintf("Main logic loop registered!\r\n");
+    uprintf("[INFO] Main logic loop registered!\r\n");
     bootStatus |= 0x2; // main logic loop ready
   }
   else {
-    uprintf("Failed to register main logic loop\r\n");
+    uprintf("[ERR] Failed to register main logic loop\r\n");
   }
 
   // register motor control loop function to run at the specified pid frequency
@@ -109,15 +110,21 @@ int main() {
   repeating_timer_t motorControlLoopTimer;
   bool timerAdded = add_repeating_timer_us(-motorLoopTimeus, motorControlLoop, NULL, &motorControlLoopTimer);
   if (timerAdded) {
-    uprintf("PID loop registered!\r\n");
+    uprintf("[INFO] PID loop registered!\r\n");
     bootStatus |= 0x4; // motor control loop ready
   }
   else {
-    uprintf("Failed to register PID loop\r\n");
+    uprintf("[ERR] Failed to register PID loop\r\n");
   }
 
 
   if (board->ws2812_data != HW::NO_ASSIGNMENT) {
+    if (bootStatus == 0x7) {
+      uprintf("[INFO] ");
+    }
+    else {
+      uprintf("[ERR] ");
+    }
     uprintf("Final boot status code: 0x%X ", bootStatus);
     if (bootStatus == 0x7) {
       led.setColor(0x3d2700); // yellowish, not too bright
@@ -133,11 +140,12 @@ int main() {
   // keep execution going
   uint32_t knownDrops = 0;
   while (true) {
+    processRX();
     
     printLogBuffer();
     uint32_t newDrops = getDrops();
     if (knownDrops < newDrops) {
-      uprintf("WARNING: Log buffer overflow, %u messages dropped\r\n", newDrops - knownDrops);
+      uprintf("[WARN] Log buffer overflow, %u messages dropped\r\n", newDrops - knownDrops);
       knownDrops = newDrops;
     }
     /*
@@ -316,7 +324,6 @@ bool motorControlLoop(repeating_timer_t *rt) {
     else {
       blaster.logicLines.wheelState = Rune::States::WHEEL_STOPPED;
       ulogf("MotorState SLOWING -> STOPPED\r\n");
-      ulogf("");
     }
     motorStateLastUpdate = get_absolute_time();
   }
@@ -329,7 +336,7 @@ bool motorControlLoop(repeating_timer_t *rt) {
 
   blaster.logicLines.wheelsAtSpeed = atTarget;
   if (!loggedSpinup && blaster.logicLines.wheelsAtSpeed) {
-    ulogf("Spinup Time: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(motorStateLastUpdate));
+    ulogf("[INFO] Spinup Time: %ums\r\n", to_ms_since_boot(get_absolute_time()) - to_ms_since_boot(motorStateLastUpdate));
     loggedSpinup = true;
   }
   return true;
