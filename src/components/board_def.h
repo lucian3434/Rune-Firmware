@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <string>
 #include "drv/drv824xs.h"
 
 namespace HW {
@@ -26,6 +27,7 @@ namespace HW {
     };
 
     struct Board {
+        std::string friendlyName;
         std::vector<uint8_t> escs;
         uint8_t esc_enable;
         uint8_t esc_telem;

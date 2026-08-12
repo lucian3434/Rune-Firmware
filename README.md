@@ -16,7 +16,7 @@ Reference firmware for the Rune brushless blaster control board. Currently under
 - [ ] Update RPM logging code to current standard
 - [ ] Support for pushbutton fire mode selector
 - [ ] ESC passthrough mode for programming/updating
-- [ ] More fire modes + revise current for progressive trigger setup
+- [ ] More fire modes + revise current modes for progressive trigger setup
 - [x] Function parity with pre-rewrite code
 - [x] Current sensing closed loop solenoid code
 

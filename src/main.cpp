@@ -45,6 +45,7 @@ bool loggedSpinup = false;
 
 Rune::Config config = Rune::Config();
 Rune::Blaster blaster = Rune::Blaster(&config);
+Rune::SerialAPI api = Rune::SerialAPI(&blaster);
 HW::Board* board;
 
 LED::WS2812 led = LED::WS2812(0, pio1);
@@ -140,7 +141,7 @@ int main() {
   // keep execution going
   uint32_t knownDrops = 0;
   while (true) {
-    processRX();
+    api.processRX();
     
     printLogBuffer();
     uint32_t newDrops = getDrops();

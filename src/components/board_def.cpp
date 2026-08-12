@@ -20,6 +20,7 @@ uint8_t HW::getADCSlice(HW::Board* board, adcFunction_t func) {
 }
 
 HW::Board HW::rune_v0_2 = {
+    .friendlyName = "Rune v0.2",
     .escs = {HW::NO_ASSIGNMENT, 0, 1, 2, 3},
     .esc_enable = 25,
     .esc_telem = 4,
@@ -40,6 +41,7 @@ HW::Board HW::rune_v0_2 = {
 };
 
 HW::Board HW::rune_v0_3 = {
+    .friendlyName = "Rune v0.3",
     .escs = {HW::NO_ASSIGNMENT, 0, 1, 2, 3},
     .esc_enable = 25,
     .esc_telem = 4,

@@ -27,6 +27,8 @@ namespace Rune {
         private:
         std::vector<Debounce::Button> switches;
         public:
+        std::string fwVersionString = "v0.0.0";
+
         ADC::ADC adc;
         Rune::States logicLines;
         Rune::Config* cfg;
