@@ -62,8 +62,11 @@ namespace Rune {
             void processInboundMessage();
             void reportError(apiError_t err);
             void reportError(apiError_t err, std::string highlight);
-            void sendResponse(std::string data);
+            void sendResponse(std::string section, std::string field, std::string data);
 
+            bool isSection(std::string sec);
+            bool isField(std::string fie);
+            std::string floatToExp(float val);
 
         public:
             SerialAPI(Rune::Blaster* blaster);

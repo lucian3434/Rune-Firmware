@@ -38,8 +38,7 @@ namespace Rune {
       };
 
       enum motorType_t {
-        MOTOR_DSHOT = 0, // not supported
-        MOTOR_BIDSHOT = 1
+        MOTOR_BIDSHOT = 0
       };
 
       struct MotorPIDConfig {
@@ -62,15 +61,19 @@ namespace Rune {
         FM_FULL = 3
       };
 
+      // io
       std::vector<IOSwitchConfig> io_switches;
       selectorType_t selector_type;
 
+      // board
       HW::boardVersion_t board_name;
 
+      // pusher
       pusherType_t pusher_type;
       uint32_t solOnTimems;
       uint32_t solOffTimems;
 
+      // motors
       std::vector<MotorConfig> motors;
       std::vector<std::vector<uint32_t>> motor_rpm_targets; // [cap][motor]
       std::vector<fireMode_t> fire_modes;
